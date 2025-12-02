@@ -1,30 +1,29 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.InputSystem;
+
 
 public class Sword : MonoBehaviour
 {
     [SerializeField] private GameObject slashEffectPrefab;
-    [SerializeField] private Transform slashSpawnPoint; 
+    [SerializeField] private Transform slashSpawnPoint;
+
     private PlayerControls playerControls;
     private Animator myAnimator;
-    private PlayerController playerController;
+    private PlayerControllerCombined playerController; // Hoặc PlayerController nếu dùng phiên bản PC/Joystick
     private Transform swordPivot;
-    private Vector2 lastSwingDirection = Vector2.zero;
-    private int lastFacingDirection = 1;
-    private enum SwingDirection
-    {
-        Down,
-        Up
-    }
 
-    private SwingDirection currentSwing = SwingDirection.Down; // bắt đầu là SwingDown
+    private int lastFacingDirection = 1; // 1 = right, -1 = left
+
+    private enum SwingDirection { Down, Up }
+    private SwingDirection currentSwing = SwingDirection.Down;
 
     private Quaternion defaultRotationRight;
-    private Vector3 defaultPositionRight; // Thêm vị trí mặc định
+    private Vector3 defaultPositionRight;
 
     private void Awake()
     {
-        playerController = GetComponentInParent<PlayerController>();
+        playerController = GetComponentInParent<PlayerControllerCombined>();
         myAnimator = GetComponent<Animator>();
         playerControls = new PlayerControls();
         swordPivot = transform.parent;
@@ -37,17 +36,20 @@ public class Sword : MonoBehaviour
 
     private void Start()
     {
+        canAttack = true;
+
         if (swordPivot != null)
         {
             defaultRotationRight = swordPivot.localRotation;
-            defaultPositionRight = swordPivot.localPosition; // Lưu vị trí gốc
+            defaultPositionRight = swordPivot.localPosition;
         }
     }
+
 
     private void OnEnable()
     {
         playerControls.Enable();
-        playerControls.Combat.Attack.performed -= OnAttack; // tránh duplicate
+        playerControls.Combat.Attack.performed -= OnAttack;
         playerControls.Combat.Attack.performed += OnAttack;
     }
 
@@ -56,18 +58,43 @@ public class Sword : MonoBehaviour
         playerControls.Combat.Attack.performed -= OnAttack;
         playerControls.Disable();
     }
+    private bool canAttack = true;
+    public void EnableAttack()
+    {
+        canAttack = true;
+    }
+
+    [SerializeField] private float attackCooldown = 0.5f; // thời gian animation
 
     private void OnAttack(InputAction.CallbackContext ctx)
     {
+        if (!canAttack) return;
+
+        // Trigger animation
         if (myAnimator != null)
             myAnimator.SetTrigger("Attack");
 
-        // Spawn Slash **dựa vào Swing hiện tại**
-        SpawnSlashEffect();
+        // Spawn Slash chỉ khi Swing Down
+        if (currentSwing == SwingDirection.Down)
+            SpawnSlashEffect();
 
-        // Sau đó toggle Swing cho lần nhấn tiếp theo
+        // Toggle Swing cho animation lần tiếp theo
         currentSwing = (currentSwing == SwingDirection.Down) ? SwingDirection.Up : SwingDirection.Down;
+
+        // Lock attack trong cooldown
+        StartCoroutine(AttackCooldownRoutine());
     }
+
+
+
+    private IEnumerator AttackCooldownRoutine()
+    {
+        canAttack = false;
+        yield return new WaitForSeconds(attackCooldown); // attackCooldown ≈ thời gian animation
+        canAttack = true;
+    }
+
+
 
 
 
@@ -75,22 +102,24 @@ public class Sword : MonoBehaviour
     {
         if (slashEffectPrefab == null || slashSpawnPoint == null) return;
 
-        // Chỉ spawn khi SwingDown
-        if (currentSwing != SwingDirection.Down) return;
-
+        // Spawn tại vị trí sword hiện tại
         GameObject slash = Instantiate(slashEffectPrefab, slashSpawnPoint.position, Quaternion.identity);
 
-        // Flip theo hướng nhìn cuối (trái/phải)
+        // Đặt scale flip theo hướng player
         slash.transform.localScale = (lastFacingDirection < 0) ? new Vector3(-1, 1, 1) : Vector3.one;
+
+        // Nếu Slash prefab có Rigidbody2D hoặc Animator, hãy đảm bảo nó không parent theo player
+        slash.transform.parent = slashSpawnPoint;
+
+
+        // Rotation reset
         slash.transform.rotation = Quaternion.identity;
     }
 
 
 
 
-
-
-    private void Update()
+    private void LateUpdate()
     {
         FaceMoveDirection();
     }
@@ -98,33 +127,26 @@ public class Sword : MonoBehaviour
     private void FaceMoveDirection()
     {
         if (playerController == null || swordPivot == null) return;
-        
-        Vector2 dir = playerController.Movement;
-        
-    if (dir.sqrMagnitude > 0.01f)
-    {
-        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
-        {
-            lastFacingDirection = (dir.x < 0f) ? -1 : 1;
-        }
-        // Nếu chỉ muốn Slash xoay theo Y khi đứng yên, không cần thay đổi lastFacingDirection
-    }
 
-        
+        Vector2 dir = playerController.Movement;
+
+        // Chỉ update khi di chuyển theo X
+        if (Mathf.Abs(dir.x) > 0.01f)
+            lastFacingDirection = (dir.x < 0f) ? -1 : 1;
+
+        // Flip swordPivot dựa theo hướng
         if (lastFacingDirection < 0)
         {
-            // Trái: flip scale + đảo X position
             swordPivot.localScale = new Vector3(-1, 1, 1);
             swordPivot.localRotation = defaultRotationRight;
             swordPivot.localPosition = new Vector3(
-                -defaultPositionRight.x, // Đảo dấu X
+                -defaultPositionRight.x,
                 defaultPositionRight.y,
                 defaultPositionRight.z
             );
         }
         else
         {
-            // Phải: giữ nguyên
             swordPivot.localScale = new Vector3(1, 1, 1);
             swordPivot.localRotation = defaultRotationRight;
             swordPivot.localPosition = defaultPositionRight;
