@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyAI : MonoBehaviour
+public class AnimalAI : MonoBehaviour
 {
     private enum State
     {
@@ -10,7 +10,7 @@ public class EnemyAI : MonoBehaviour
     }
 
     private State state;
-    private EnemyPathfinding enemyPathfinding;
+    private AnimalPathfinding animalPathfinding;
     private SpriteRenderer spriteRenderer;
 
     // Phạm vi đi lang thang (tính từ vị trí ban đầu)
@@ -20,7 +20,7 @@ public class EnemyAI : MonoBehaviour
 
     private void Awake()
     {
-        enemyPathfinding = GetComponent<EnemyPathfinding>();
+        animalPathfinding = GetComponent<AnimalPathfinding>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         state = State.Roaming;
@@ -40,16 +40,16 @@ public class EnemyAI : MonoBehaviour
             Vector2 roamPosition = GetRoamingPosition();
 
             // Bảo con thú đi tới đó
-            enemyPathfinding.MoveTo(roamPosition);
+            animalPathfinding.MoveTo(roamPosition);
 
             // Lấy hướng thực tế
-            Vector2 dir = enemyPathfinding.GetMoveDir();
+            Vector2 dir = animalPathfinding.GetMoveDir();
 
             // Xoay trái/phải theo trục X
             if (dir.x < 0)
-                spriteRenderer.flipX = true;   // quay sang trái
+                spriteRenderer.flipX = false;   // quay sang trái
             else if (dir.x > 0)
-                spriteRenderer.flipX = false;  // quay sang phải
+                spriteRenderer.flipX = true;  // quay sang phải
 
             // Đợi 2 giây rồi random chỗ mới
             yield return new WaitForSeconds(2f);
