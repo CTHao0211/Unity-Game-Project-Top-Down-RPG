@@ -3,12 +3,22 @@ using UnityEngine.InputSystem;
 
 public class Sword : MonoBehaviour
 {
+    [SerializeField] private GameObject slashEffectPrefab;
+    [SerializeField] private Transform slashSpawnPoint; 
     private PlayerControls playerControls;
     private Animator myAnimator;
     private PlayerController playerController;
     private Transform swordPivot;
-    
+    private Vector2 lastSwingDirection = Vector2.zero;
     private int lastFacingDirection = 1;
+    private enum SwingDirection
+    {
+        Down,
+        Up
+    }
+
+    private SwingDirection currentSwing = SwingDirection.Down; // bắt đầu là SwingDown
+
     private Quaternion defaultRotationRight;
     private Vector3 defaultPositionRight; // Thêm vị trí mặc định
 
@@ -51,7 +61,34 @@ public class Sword : MonoBehaviour
     {
         if (myAnimator != null)
             myAnimator.SetTrigger("Attack");
+
+        // Spawn Slash **dựa vào Swing hiện tại**
+        SpawnSlashEffect();
+
+        // Sau đó toggle Swing cho lần nhấn tiếp theo
+        currentSwing = (currentSwing == SwingDirection.Down) ? SwingDirection.Up : SwingDirection.Down;
     }
+
+
+
+    private void SpawnSlashEffect()
+    {
+        if (slashEffectPrefab == null || slashSpawnPoint == null) return;
+
+        // Chỉ spawn khi SwingDown
+        if (currentSwing != SwingDirection.Down) return;
+
+        GameObject slash = Instantiate(slashEffectPrefab, slashSpawnPoint.position, Quaternion.identity);
+
+        // Flip theo hướng nhìn cuối (trái/phải)
+        slash.transform.localScale = (lastFacingDirection < 0) ? new Vector3(-1, 1, 1) : Vector3.one;
+        slash.transform.rotation = Quaternion.identity;
+    }
+
+
+
+
+
 
     private void Update()
     {
@@ -64,17 +101,15 @@ public class Sword : MonoBehaviour
         
         Vector2 dir = playerController.Movement;
         
-        if (dir.sqrMagnitude > 0.01f)
+    if (dir.sqrMagnitude > 0.01f)
+    {
+        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
         {
-            if (dir.x < 0f)
-            {
-                lastFacingDirection = -1;
-            }
-            else if (dir.x > 0f)
-            {
-                lastFacingDirection = 1;
-            }
+            lastFacingDirection = (dir.x < 0f) ? -1 : 1;
         }
+        // Nếu chỉ muốn Slash xoay theo Y khi đứng yên, không cần thay đổi lastFacingDirection
+    }
+
         
         if (lastFacingDirection < 0)
         {
