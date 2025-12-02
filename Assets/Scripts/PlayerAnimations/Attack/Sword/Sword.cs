@@ -6,48 +6,48 @@ public class Sword : MonoBehaviour
     private PlayerControls playerControls;
     private Animator myAnimator;
     private PlayerController playerController;
-    private SpriteRenderer swordSprite;
-
-    // vị trí mặc định của kiếm khi đứng nhìn sang PHẢI
-    private Vector3 defaultLocalPos;
+    private Transform swordPivot;
+    
+    private int lastFacingDirection = 1;
+    private Quaternion defaultRotationRight;
+    private Vector3 defaultPositionRight; // Thêm vị trí mặc định
 
     private void Awake()
     {
         playerController = GetComponentInParent<PlayerController>();
         myAnimator = GetComponent<Animator>();
-        swordSprite = GetComponent<SpriteRenderer>();
         playerControls = new PlayerControls();
+        swordPivot = transform.parent;
 
         if (playerController == null)
-            Debug.LogError("Sword: Không tìm thấy PlayerController trên cha!");
-        if (swordSprite == null)
-            Debug.LogError("Sword: Không tìm thấy SpriteRenderer trên Sword!");
+            Debug.LogError("Sword: Không tìm thấy PlayerController!");
+        if (swordPivot == null)
+            Debug.LogError("Sword: Không tìm thấy SwordPivot!");
     }
 
     private void Start()
     {
-        // Lưu lại localPosition hiện tại (đã chỉnh đúng tay phải)
-        defaultLocalPos = transform.localPosition;
+        if (swordPivot != null)
+        {
+            defaultRotationRight = swordPivot.localRotation;
+            defaultPositionRight = swordPivot.localPosition; // Lưu vị trí gốc
+        }
     }
 
     private void OnEnable()
     {
         playerControls.Enable();
-        playerControls.Combat.Attack.started += OnAttack;
+        playerControls.Combat.Attack.performed -= OnAttack; // tránh duplicate
+        playerControls.Combat.Attack.performed += OnAttack;
     }
 
     private void OnDisable()
     {
-        playerControls.Combat.Attack.started -= OnAttack;
+        playerControls.Combat.Attack.performed -= OnAttack;
         playerControls.Disable();
     }
 
     private void OnAttack(InputAction.CallbackContext ctx)
-    {
-        Attack();
-    }
-
-    private void Attack()
     {
         if (myAnimator != null)
             myAnimator.SetTrigger("Attack");
@@ -58,36 +58,41 @@ public class Sword : MonoBehaviour
         FaceMoveDirection();
     }
 
-    // Chỉ đổi trái/phải, KHÔNG xoay, KHÔNG đổi độ cao
     private void FaceMoveDirection()
     {
-        if (playerController == null || swordSprite == null) return;
-
+        if (playerController == null || swordPivot == null) return;
+        
         Vector2 dir = playerController.Movement;
-
-        // đứng yên thì giữ nguyên
-        if (dir.sqrMagnitude < 0.01f)
-            return;
-
-        if (dir.x < 0f)
+        
+        if (dir.sqrMagnitude > 0.01f)
         {
-            // sang TRÁI: đảo localPosition.x + flip sprite
-            transform.localPosition = new Vector3(
-                -Mathf.Abs(defaultLocalPos.x),
-                defaultLocalPos.y,
-                defaultLocalPos.z
-            );
-            swordSprite.flipX = true;
+            if (dir.x < 0f)
+            {
+                lastFacingDirection = -1;
+            }
+            else if (dir.x > 0f)
+            {
+                lastFacingDirection = 1;
+            }
         }
-        else if (dir.x > 0f)
+        
+        if (lastFacingDirection < 0)
         {
-            // sang PHẢI: trả về vị trí mặc định + bỏ flip
-            transform.localPosition = new Vector3(
-                Mathf.Abs(defaultLocalPos.x),
-                defaultLocalPos.y,
-                defaultLocalPos.z
+            // Trái: flip scale + đảo X position
+            swordPivot.localScale = new Vector3(-1, 1, 1);
+            swordPivot.localRotation = defaultRotationRight;
+            swordPivot.localPosition = new Vector3(
+                -defaultPositionRight.x, // Đảo dấu X
+                defaultPositionRight.y,
+                defaultPositionRight.z
             );
-            swordSprite.flipX = false;
+        }
+        else
+        {
+            // Phải: giữ nguyên
+            swordPivot.localScale = new Vector3(1, 1, 1);
+            swordPivot.localRotation = defaultRotationRight;
+            swordPivot.localPosition = defaultPositionRight;
         }
     }
 }
