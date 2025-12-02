@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyPathfinding : MonoBehaviour
+public class AnimalPathfinding : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 2f;
 
