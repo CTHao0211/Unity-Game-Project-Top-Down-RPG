@@ -54,6 +54,31 @@ public class Sword : MonoBehaviour
         defaultRotationRight = swordPivot.localRotation;
         defaultPositionRight = swordPivot.localPosition;
     }
+        // === HÀM GỌI TỪ NÚT ATTACK ===
+        public void OnAttackButton()
+        {
+            Attack();
+        }
+
+    private void Attack()
+    {
+        if (!canAttack) return;
+
+        myAnimator?.SetTrigger("Attack");
+
+        // Spawn Slash khi swing xuống
+        if (currentSwing == SwingDirection.Down)
+            SpawnSlashEffect();
+
+        // Hitbox bật/tắt
+        StartCoroutine(HitboxRoutine());
+
+        // Đổi swing cho lần kế
+        currentSwing = (currentSwing == SwingDirection.Down) ? SwingDirection.Up : SwingDirection.Down;
+
+        // Cooldown
+        StartCoroutine(AttackCooldownRoutine());
+    }
 
     private void OnEnable()
     {
