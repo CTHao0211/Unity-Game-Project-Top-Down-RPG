@@ -9578,8 +9578,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: SwordMobile, Assembly-CSharp
+      - m_Target: {fileID: 885772958}
+        m_TargetAssemblyTypeName: Sword, Assembly-CSharp
         m_MethodName: OnAttackButton
         m_Mode: 1
         m_Arguments:
