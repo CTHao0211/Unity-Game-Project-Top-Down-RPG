@@ -5,7 +5,9 @@ using UnityEngine;
 public class PlayerControllerCombined : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 1f;
-
+    [SerializeField] private float dashSpeed = 4f;
+    [SerializeField] private TrailRenderer myTrailRenderer;
+    public CanvasGroup dashButtonCanvasGroup;
     public Joystick moveJoystick; // Joystick cho mobile
 
     private PlayerControls playerControls; // Input System cho PC
@@ -16,6 +18,8 @@ public class PlayerControllerCombined : MonoBehaviour
 
     // Cho script khác đọc hướng di chuyển
     public Vector2 Movement => movement;
+    private float startingMoveSpeed;
+    private bool isDashing = false;
 
     private void Awake()
     {
@@ -24,6 +28,15 @@ public class PlayerControllerCombined : MonoBehaviour
         mySpriteRender = GetComponent<SpriteRenderer>();
 
         playerControls = new PlayerControls();
+    }
+    private void Start() {
+        playerControls.Combat.Dash.performed += _ => Dash();
+
+        startingMoveSpeed = moveSpeed;
+    }
+    public void OnDashButton()
+    {
+        Dash();
     }
 
     private void OnEnable()
@@ -93,4 +106,60 @@ public class PlayerControllerCombined : MonoBehaviour
         else if (movement.x > 0f)
             mySpriteRender.flipX = false;
     }
+    private void Dash() {
+        if (!isDashing) {
+            isDashing = true;
+            moveSpeed *= dashSpeed;
+            myTrailRenderer.emitting = true;
+            StartCoroutine(EndDashRoutine());
+        }
+    }
+
+private IEnumerator EndDashRoutine() {
+    float dashTime = .2f;
+    float dashCooldown = 3f; // 3 GIÂY COOLDOWN
+
+    yield return new WaitForSeconds(dashTime);
+
+    moveSpeed = startingMoveSpeed;  
+    myTrailRenderer.emitting = false;
+
+    yield return StartCoroutine(DashCooldownRoutine(dashCooldown));
+
+    isDashing = false;
+}
+
+
+    private IEnumerator DashCooldownRoutine(float cooldownTime)
+    {
+        if (dashButtonCanvasGroup)
+        {
+            // Khi bắt đầu cooldown → mờ đi
+            dashButtonCanvasGroup.alpha = 0.3f;
+            dashButtonCanvasGroup.interactable = false;
+        }
+
+        float elapsed = 0f;
+
+        // Làm sáng dần trong suốt cooldown
+        while (elapsed < cooldownTime)
+        {
+            elapsed += Time.deltaTime;
+
+            float t = elapsed / cooldownTime;
+
+            if (dashButtonCanvasGroup)
+                dashButtonCanvasGroup.alpha = Mathf.Lerp(0.3f, 1f, t);
+
+            yield return null;
+        }
+
+        // Cooldown xong → sáng hoàn toàn + có thể nhấn lại
+        if (dashButtonCanvasGroup)
+        {
+            dashButtonCanvasGroup.alpha = 1f;
+            dashButtonCanvasGroup.interactable = true;
+        }
+    }
+
 }
