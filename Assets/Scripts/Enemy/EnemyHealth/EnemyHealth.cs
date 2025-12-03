@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
@@ -10,23 +9,41 @@ public class EnemyHealth : MonoBehaviour
     private Knockback knockback;
     private Flash flash;
 
-    private void Awake() {
+    private void Awake()
+    {
         flash = GetComponent<Flash>();
         knockback = GetComponent<Knockback>();
-    }
-
-    private void Start() {
         currentHealth = startingHealth;
     }
 
-    public void TakeDamage(int damage) {
+    public void TakeDamage(int damage)
+    {
         currentHealth -= damage;
-        knockback.GetKnockedBack(PlayerControllerCombined.Instance.transform, 15f);
-        StartCoroutine(flash.FlashRoutine());
+        Debug.Log($"[EnemyHealth] Bị trúng đòn, máu còn: {currentHealth}");
+
+        // Knockback
+        if (knockback != null && PlayerControllerCombined.instance != null)
+        {
+            knockback.GetKnockedBack(PlayerControllerCombined.instance.transform, 15f);
+        }
+
+        // Flash
+        if (flash != null)
+        {
+            Debug.Log("[EnemyHealth] Gọi FlashRoutine");
+            StartCoroutine(flash.FlashRoutine());
+        }
+        else
+        {
+            DetectDeath();
+        }
     }
 
-    public void DetectDeath() {
-        if (currentHealth <= 0) {
+    public void DetectDeath()
+    {
+        if (currentHealth <= 0)
+        {
+            Debug.Log("Enemy chết!");
             Destroy(gameObject);
         }
     }
