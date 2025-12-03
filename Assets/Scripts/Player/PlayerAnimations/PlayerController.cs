@@ -1,26 +1,29 @@
-﻿﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerControllerCombined : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 1f;
 
-    private PlayerControls playerControls;
+    public Joystick moveJoystick; // Joystick cho mobile
+
+    private PlayerControls playerControls; // Input System cho PC
     private Vector2 movement;
     private Rigidbody2D rb;
     private Animator myAnimator;
     private SpriteRenderer mySpriteRender;
 
-    // Cho script khác (ví dụ Sword) đọc hướng di chuyển
+    // Cho script khác đọc hướng di chuyển
     public Vector2 Movement => movement;
 
     private void Awake()
     {
-        playerControls = new PlayerControls();
         rb = GetComponent<Rigidbody2D>();
         myAnimator = GetComponent<Animator>();
         mySpriteRender = GetComponent<SpriteRenderer>();
+
+        playerControls = new PlayerControls();
     }
 
     private void OnEnable()
@@ -36,7 +39,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         PlayerInput();
-        AdjustPlayerFacingDirection();   // cho vào đây là hợp lý hơn
+        AdjustPlayerFacingDirection();
     }
 
     private void FixedUpdate()
@@ -46,12 +49,33 @@ public class PlayerController : MonoBehaviour
 
     private void PlayerInput()
     {
-        // Đọc input từ Input System
-        movement = playerControls.Movement.Move.ReadValue<Vector2>();
+        Vector2 pcInput = playerControls.Movement.Move.ReadValue<Vector2>();
+        Vector2 joystickInput = new Vector2(moveJoystick.Horizontal, moveJoystick.Vertical);
 
-        // Đẩy vào Animator để điều khiển blend tree / anim chạy
-        myAnimator.SetFloat("moveX", movement.x);
-        myAnimator.SetFloat("moveY", movement.y);
+        // Chuẩn hóa joystick nếu quá lớn
+        if (joystickInput.sqrMagnitude > 1f)
+            joystickInput = joystickInput.normalized;
+
+        // Ưu tiên AWSD/PC
+        if (pcInput.sqrMagnitude > 0.01f)
+        {
+            movement = pcInput;
+        }
+        else if (joystickInput.sqrMagnitude > 0.01f)
+        {
+            movement = joystickInput;
+        }
+        else
+        {
+            movement = Vector2.zero;
+        }
+
+        // Giữ nguyên Animator và flip theo AWSD/joystick
+        if (myAnimator != null)
+        {
+            myAnimator.SetFloat("moveX", movement.x);
+            myAnimator.SetFloat("moveY", movement.y);
+        }
     }
 
     private void Move()
@@ -61,21 +85,12 @@ public class PlayerController : MonoBehaviour
 
     private void AdjustPlayerFacingDirection()
     {
-        // Nếu đang đứng yên thì giữ hướng cũ
         if (movement.sqrMagnitude < 0.001f)
             return;
 
-        // Chỉ flip theo trục X
         if (movement.x < 0f)
-        {
-            mySpriteRender.flipX = true;   // nhìn sang trái
-        }
+            mySpriteRender.flipX = true;
         else if (movement.x > 0f)
-        {
-            mySpriteRender.flipX = false;  // nhìn sang phải
-        }
-
-        // Nếu bạn muốn nhìn lên/xuống bằng anim (đã set moveY trong Animator)
-        // thì không cần xử lý thêm ở đây.
+            mySpriteRender.flipX = false;
     }
 }
