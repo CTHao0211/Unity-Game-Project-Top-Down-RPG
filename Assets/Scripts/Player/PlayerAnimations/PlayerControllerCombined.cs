@@ -9,6 +9,7 @@ public class PlayerControllerCombined : MonoBehaviour
     [SerializeField] private TrailRenderer myTrailRenderer;
     public CanvasGroup dashButtonCanvasGroup;
     public Joystick moveJoystick; // Joystick cho mobile
+    public static PlayerControllerCombined instance;
 
     private PlayerControls playerControls; // Input System cho PC
     private Vector2 movement;
@@ -23,6 +24,7 @@ public class PlayerControllerCombined : MonoBehaviour
 
     private void Awake()
     {
+        instance = this;
         rb = GetComponent<Rigidbody2D>();
         myAnimator = GetComponent<Animator>();
         mySpriteRender = GetComponent<SpriteRenderer>();
