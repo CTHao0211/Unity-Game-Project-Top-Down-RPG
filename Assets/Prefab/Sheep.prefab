@@ -15,6 +15,9 @@ GameObject:
   - component: {fileID: 279172533237308214}
   - component: {fileID: 7047189992515235634}
   - component: {fileID: 1559357636501697643}
+  - component: {fileID: -2746545115976204577}
+  - component: {fileID: 6410069112846260955}
+  - component: {fileID: -1860446759260649711}
   m_Layer: 0
   m_Name: Sheep
   m_TagString: Untagged
@@ -198,3 +201,43 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
+--- !u!114 &-2746545115976204577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4068316279099707947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7057a0e7ff8faf74ca0f39fef34e6f9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flashMaterial: {fileID: 2100000, guid: 1b88d86815aca33499eb621b5482e985, type: 2}
+  flashDuration: 0.15
+--- !u!114 &6410069112846260955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4068316279099707947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d414a37d138b2f34691218b71e3d73f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startingHealth: 4
+--- !u!114 &-1860446759260649711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4068316279099707947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6762bbaaeca01c94d9307f1ca6e6474e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  knockBackTime: 0.5

@@ -15,6 +15,9 @@ GameObject:
   - component: {fileID: 2827057561997474756}
   - component: {fileID: 958515784820348217}
   - component: {fileID: 6619699492230433785}
+  - component: {fileID: 2319277200310872822}
+  - component: {fileID: -8145922917452305379}
+  - component: {fileID: 1411227833427708129}
   m_Layer: 0
   m_Name: Cow
   m_TagString: Untagged
@@ -198,3 +201,43 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
+--- !u!114 &2319277200310872822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4861688863869755555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7057a0e7ff8faf74ca0f39fef34e6f9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flashMaterial: {fileID: 2100000, guid: 1b88d86815aca33499eb621b5482e985, type: 2}
+  flashDuration: 0.5
+--- !u!114 &-8145922917452305379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4861688863869755555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d414a37d138b2f34691218b71e3d73f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startingHealth: 10
+--- !u!114 &1411227833427708129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4861688863869755555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6762bbaaeca01c94d9307f1ca6e6474e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  knockBackTime: 0.5
