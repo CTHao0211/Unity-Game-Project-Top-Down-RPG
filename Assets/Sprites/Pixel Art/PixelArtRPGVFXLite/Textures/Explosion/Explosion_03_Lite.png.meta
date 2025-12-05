@@ -1,12 +1,12 @@
 fileFormatVersion: 2
-guid: aed99eadee49e5d4d857c4283e64a40a
+guid: 07a7d4c8ffe41f1439f289296d45b977
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
-  serializedVersion: 12
+  serializedVersion: 13
   mipmaps:
     mipMapMode: 0
-    enableMipMap: 0
+    enableMipMap: 1
     sRGBTexture: 1
     linearTexture: 0
     fadeOut: 0
@@ -20,11 +20,12 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
-  ignoreMasterTextureLimit: 0
+  ignoreMipmapLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -36,8 +37,8 @@ TextureImporter:
     filterMode: 0
     aniso: 1
     mipBias: 0
-    wrapU: 1
-    wrapV: 1
+    wrapU: 0
+    wrapV: 0
     wrapW: 0
   nPOTScale: 0
   lightmap: 0
@@ -47,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 64
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -63,7 +64,8 @@ TextureImporter:
   textureFormatSet: 0
   ignorePngGamma: 0
   applyGammaDecoding: 0
-  cookieLightType: 1
+  swizzle: 50462976
+  cookieLightType: 0
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
@@ -75,6 +77,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -87,18 +90,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 3
-    buildTarget: Windows Store Apps
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -111,6 +103,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -123,6 +116,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -135,13 +129,27 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Windows Store Apps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: WaterWave_0
+      name: Explosion_03_0
       rect:
         serializedVersion: 2
         x: 0
@@ -155,14 +163,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: dcd06e57708607f4392f1b8b000262b8
-      internalID: 259538753
+      spriteID: 58ceef70e3126624c82d77ef5ae92d3a
+      internalID: 1343172438
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WaterWave_1
+      name: Explosion_03_1
       rect:
         serializedVersion: 2
         x: 0
@@ -176,14 +184,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8c299572da7642441a14e16dc0c232a2
-      internalID: 539053932
+      spriteID: 636e3d9d4ac680949a2b4711d9bde1b4
+      internalID: 1389328290
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WaterWave_2
+      name: Explosion_03_2
       rect:
         serializedVersion: 2
         x: 0
@@ -197,14 +205,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 68520e4b8ba12034eb5b9c6c09493a7c
-      internalID: -1883572016
+      spriteID: 2d0b4ad320f920d4fb0bd704629c54f3
+      internalID: -523584915
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WaterWave_3
+      name: Explosion_03_3
       rect:
         serializedVersion: 2
         x: 0
@@ -218,14 +226,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b61bb2647e6811b428129d36caec4ca3
-      internalID: 698808654
+      spriteID: 653aaf2eb42833d49b8ffef38087a4cf
+      internalID: 500476928
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WaterWave_4
+      name: Explosion_03_4
       rect:
         serializedVersion: 2
         x: 0
@@ -239,14 +247,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 236f8e31c335d9e4abf7c668c357c8bc
-      internalID: 1366909064
+      spriteID: b2bb27609d93e8541ab09d58602cf65c
+      internalID: -1470835115
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WaterWave_5
+      name: Explosion_03_5
       rect:
         serializedVersion: 2
         x: 0
@@ -260,8 +268,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a5a06dcf68a3f0141821a6f43f8c0890
-      internalID: -1421726030
+      spriteID: 7c515c301131de74eae725602881f3bc
+      internalID: -1752411074
       vertices: []
       indices: 
       edges: []
@@ -269,7 +277,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 09d54356d17b4494dbc9ea8cf47709d2
     internalID: 0
     vertices: []
     indices: 
@@ -277,15 +285,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      WaterWave_4: 1366909064
-      WaterWave_5: -1421726030
-      WaterWave_3: 698808654
-      WaterWave_1: 539053932
-      WaterWave_2: -1883572016
-      WaterWave_0: 259538753
-  spritePackingTag: 
+      Explosion_03_0: 1343172438
+      Explosion_03_1: 1389328290
+      Explosion_03_2: -523584915
+      Explosion_03_3: 500476928
+      Explosion_03_4: -1470835115
+      Explosion_03_5: -1752411074
+  mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 

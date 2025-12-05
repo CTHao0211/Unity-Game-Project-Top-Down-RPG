@@ -1,9 +1,9 @@
 fileFormatVersion: 2
-guid: 91a0742043b257d46ace8cd44646f6c1
+guid: aed99eadee49e5d4d857c4283e64a40a
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
-  serializedVersion: 12
+  serializedVersion: 13
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -20,11 +20,12 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
-  ignoreMasterTextureLimit: 0
+  ignoreMipmapLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -63,6 +64,7 @@ TextureImporter:
   textureFormatSet: 0
   ignorePngGamma: 0
   applyGammaDecoding: 0
+  swizzle: 50462976
   cookieLightType: 1
   platformSettings:
   - serializedVersion: 3
@@ -75,6 +77,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -87,6 +90,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -99,6 +103,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -111,6 +116,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -123,6 +129,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -135,13 +142,14 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: WindGround_0
+      name: WaterWave_0
       rect:
         serializedVersion: 2
         x: 0
@@ -155,14 +163,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: cac246df7dad5a14cb74c25d5b828aad
-      internalID: -1239517694
+      spriteID: dcd06e57708607f4392f1b8b000262b8
+      internalID: 259538753
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WindGround_1
+      name: WaterWave_1
       rect:
         serializedVersion: 2
         x: 0
@@ -176,14 +184,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7a04e86e0f21d0b4495e809042193307
-      internalID: 1184920955
+      spriteID: 8c299572da7642441a14e16dc0c232a2
+      internalID: 539053932
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WindGround_2
+      name: WaterWave_2
       rect:
         serializedVersion: 2
         x: 0
@@ -197,14 +205,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1b26b7ddcca3eee40a852662d8f3bcdd
-      internalID: -2033254092
+      spriteID: 68520e4b8ba12034eb5b9c6c09493a7c
+      internalID: -1883572016
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WindGround_3
+      name: WaterWave_3
       rect:
         serializedVersion: 2
         x: 0
@@ -218,14 +226,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6591565071c8e5a4ea3fd5cc42858ef9
-      internalID: -836873093
+      spriteID: b61bb2647e6811b428129d36caec4ca3
+      internalID: 698808654
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WindGround_4
+      name: WaterWave_4
       rect:
         serializedVersion: 2
         x: 0
@@ -239,14 +247,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 280018792cfdaed4e87d06312dd97d5f
-      internalID: -2019678292
+      spriteID: 236f8e31c335d9e4abf7c668c357c8bc
+      internalID: 1366909064
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WindGround_5
+      name: WaterWave_5
       rect:
         serializedVersion: 2
         x: 0
@@ -260,8 +268,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fcadbaeedb896b04b8e2974e97646f35
-      internalID: 3646128
+      spriteID: a5a06dcf68a3f0141821a6f43f8c0890
+      internalID: -1421726030
       vertices: []
       indices: 
       edges: []
@@ -277,15 +285,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      WindGround_3: -836873093
-      WindGround_5: 3646128
-      WindGround_4: -2019678292
-      WindGround_0: -1239517694
-      WindGround_1: 1184920955
-      WindGround_2: -2033254092
-  spritePackingTag: 
+      WaterWave_0: 259538753
+      WaterWave_1: 539053932
+      WaterWave_2: -1883572016
+      WaterWave_3: 698808654
+      WaterWave_4: 1366909064
+      WaterWave_5: -1421726030
+  mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
