@@ -118,7 +118,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   flashMaterial: {fileID: 2100000, guid: 1b88d86815aca33499eb621b5482e985, type: 2}
-  flashDuration: 0.15
+  flashDuration: 0.3
 --- !u!114 &4315573642225320752
 MonoBehaviour:
   m_ObjectHideFlags: 0
