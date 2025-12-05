@@ -9294,11 +9294,13 @@ PolygonCollider2D:
   m_Points:
     m_Paths:
     - - {x: 0.34197727, y: 1.5326279}
-      - {x: 0.5724316, y: 0.7954038}
-      - {x: 0.3072253, y: -0.23159096}
-      - {x: 1.2873505, y: -1.2251332}
+      - {x: -0.12071675, y: 0.74405944}
+      - {x: -0.03934878, y: -0.25726315}
+      - {x: -0.18478158, y: -0.8472521}
+      - {x: 0.54551685, y: -1.3647723}
+      - {x: 1.5690322, y: -0.8525292}
       - {x: 1.9505483, y: -0.040032506}
-      - {x: 1.7735116, y: 1.2296369}
+      - {x: 1.4397737, y: 1.2681452}
   m_UseDelaunayMesh: 0
 --- !u!114 &72575129
 MonoBehaviour:
@@ -9313,6 +9315,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageAmount: 1
+  attackType: 0
 --- !u!4 &123475476 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3954741285735861370, guid: 99011cdcf83d2b54f9eeb2f04a49e4a5, type: 3}
@@ -10430,6 +10433,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1757701306}
     m_Modifications:
+    - target: {fileID: -5600953503444250670, guid: ef7c3f7e54e9ea14d8ac83045fdae045, type: 3}
+      propertyPath: flashDuration
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 2928494696422928870, guid: ef7c3f7e54e9ea14d8ac83045fdae045, type: 3}
       propertyPath: m_Name
       value: Slime_Green
@@ -10531,6 +10538,10 @@ PrefabInstance:
     - target: {fileID: 78026302579952438, guid: 33421bb083712aa4c9a78472b25f118f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5839558830187401316, guid: 33421bb083712aa4c9a78472b25f118f, type: 3}
+      propertyPath: flashDuration
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 8229516440078001509, guid: 33421bb083712aa4c9a78472b25f118f, type: 3}
       propertyPath: m_Name
@@ -11236,6 +11247,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1757701306}
     m_Modifications:
+    - target: {fileID: -5600953503444250670, guid: ef7c3f7e54e9ea14d8ac83045fdae045, type: 3}
+      propertyPath: flashDuration
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 2928494696422928870, guid: ef7c3f7e54e9ea14d8ac83045fdae045, type: 3}
       propertyPath: m_Name
       value: Slime_Green (2)
@@ -23456,6 +23471,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1163012067}
     m_Modifications:
+    - target: {fileID: 3318116150950646413, guid: 0378e5459863201489a2cc0895fb9c5f, type: 3}
+      propertyPath: flashDuration
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 5705347595218611068, guid: 0378e5459863201489a2cc0895fb9c5f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.25
@@ -23752,6 +23771,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1757701306}
     m_Modifications:
+    - target: {fileID: -5600953503444250670, guid: ef7c3f7e54e9ea14d8ac83045fdae045, type: 3}
+      propertyPath: flashDuration
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 2928494696422928870, guid: ef7c3f7e54e9ea14d8ac83045fdae045, type: 3}
       propertyPath: m_Name
       value: Slime_Green (1)
@@ -24089,6 +24112,10 @@ PrefabInstance:
     - target: {fileID: 2360831223693523362, guid: 025cd7e60a521bf47ad749b0878e6c68, type: 3}
       propertyPath: m_Name
       value: Skeleton
+      objectReference: {fileID: 0}
+    - target: {fileID: 8819753087292890602, guid: 025cd7e60a521bf47ad749b0878e6c68, type: 3}
+      propertyPath: flashDuration
+      value: 0.3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -24860,6 +24887,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1163012067}
     m_Modifications:
+    - target: {fileID: 3318116150950646413, guid: 0378e5459863201489a2cc0895fb9c5f, type: 3}
+      propertyPath: flashDuration
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 5705347595218611068, guid: 0378e5459863201489a2cc0895fb9c5f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -14.24
@@ -26088,6 +26119,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1163012067}
     m_Modifications:
+    - target: {fileID: -2746545115976204577, guid: e8ba0e18306272642b3afc183331f332, type: 3}
+      propertyPath: flashDuration
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 739079463649177890, guid: e8ba0e18306272642b3afc183331f332, type: 3}
       propertyPath: m_LocalPosition.x
       value: -12.01
@@ -31218,6 +31253,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1163012067}
     m_Modifications:
+    - target: {fileID: 2319277200310872822, guid: 1c8ce8f7f4078034a901706e9f0e24ea, type: 3}
+      propertyPath: flashDuration
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 4861688863869755555, guid: 1c8ce8f7f4078034a901706e9f0e24ea, type: 3}
       propertyPath: m_Name
       value: Cow

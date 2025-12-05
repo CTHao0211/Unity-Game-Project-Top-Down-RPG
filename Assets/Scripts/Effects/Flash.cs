@@ -4,7 +4,7 @@ using UnityEngine;
 public class Flash : MonoBehaviour
 {
     [Header("Materials")]
-    [SerializeField] private Material flashMaterial;      // Material flash trắng
+    [SerializeField] private Material flashMaterial;      
     [SerializeField] private float flashDuration = 0.15f;
 
     private Material originalMaterial;
@@ -15,33 +15,34 @@ public class Flash : MonoBehaviour
     {
         enemyHealth = GetComponent<EnemyHealth>();
 
-        // Tìm SpriteRenderer ở root hoặc con
+        // Tìm SpriteRenderer
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer == null)
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
-        // Lưu lại material gốc
-        originalMaterial = spriteRenderer.material;
+        // Lưu material gốc
+        originalMaterial = spriteRenderer.sharedMaterial;
+
+        // Clone flash material để mỗi enemy dùng 1 bản riêng
+        flashMaterial = new Material(flashMaterial);
     }
 
     public IEnumerator FlashRoutine()
     {
-        // Không thấy SpriteRenderer thì thôi
         if (spriteRenderer == null)
         {
             enemyHealth.DetectDeath();
             yield break;
         }
 
-        // Gán material flash
-        spriteRenderer.material = flashMaterial;
+        // Bật flash
+        spriteRenderer.sharedMaterial = flashMaterial;
 
         yield return new WaitForSeconds(flashDuration);
 
-        // Gán trả material gốc
-        spriteRenderer.material = originalMaterial;
+        // Trả về material gốc
+        spriteRenderer.sharedMaterial = originalMaterial;
 
-        // Kiểm tra chết
         enemyHealth.DetectDeath();
     }
 }
