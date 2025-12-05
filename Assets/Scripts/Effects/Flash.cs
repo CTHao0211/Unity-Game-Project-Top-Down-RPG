@@ -1,48 +1,57 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(SpriteRenderer))]
 public class Flash : MonoBehaviour
 {
-    [Header("Materials")]
-    [SerializeField] private Material flashMaterial;      
-    [SerializeField] private float flashDuration = 0.15f;
+    [Header("Flash Settings")]
+    [SerializeField] private Color flashColor = Color.white;
+    [SerializeField] private float flashDuration = 0.12f;
 
-    private Material originalMaterial;
-    private SpriteRenderer spriteRenderer;
-    private EnemyHealth enemyHealth;
+    private SpriteRenderer sr;
+    private MaterialPropertyBlock mpb;
+    private static readonly int ColorProp = Shader.PropertyToID("_Color");
+
+    private Coroutine runningFlash;
+    private Color originalColor;
 
     private void Awake()
     {
-        enemyHealth = GetComponent<EnemyHealth>();
+        sr = GetComponent<SpriteRenderer>();
+        if (sr == null)
+            sr = GetComponentInChildren<SpriteRenderer>();
 
-        // Tìm SpriteRenderer
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer == null)
-            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        mpb = new MaterialPropertyBlock();
 
-        // Lưu material gốc
-        originalMaterial = spriteRenderer.sharedMaterial;
-
-        // Clone flash material để mỗi enemy dùng 1 bản riêng
-        flashMaterial = new Material(flashMaterial);
+        // dùng color thực tế của SpriteRenderer làm màu gốc
+        originalColor = sr.color;
     }
 
-    public IEnumerator FlashRoutine()
+    /// <summary>
+    /// Hàm public để EnemyHealth gọi flash
+    /// </summary>
+    public void StartFlash()
     {
-        if (spriteRenderer == null)
-        {
-            enemyHealth.DetectDeath();
-            yield break;
-        }
+        if (runningFlash != null)
+            StopCoroutine(runningFlash);
 
-        // Bật flash
-        spriteRenderer.sharedMaterial = flashMaterial;
+        runningFlash = StartCoroutine(FlashRoutine());
+    }
+
+    private IEnumerator FlashRoutine()
+    {
+        // bật flash
+        sr.GetPropertyBlock(mpb);
+        mpb.SetColor(ColorProp, flashColor);
+        sr.SetPropertyBlock(mpb);
 
         yield return new WaitForSeconds(flashDuration);
 
-        // Trả về material gốc
-        spriteRenderer.sharedMaterial = originalMaterial;
+        // trả về màu gốc
+        sr.GetPropertyBlock(mpb);
+        mpb.SetColor(ColorProp, originalColor);
+        sr.SetPropertyBlock(mpb);
 
-        enemyHealth.DetectDeath();
+        runningFlash = null;
     }
 }
