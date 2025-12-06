@@ -110,7 +110,6 @@ public abstract class HealthBase : MonoBehaviour
         if (deathVFXPrefab != null)
         {
             GameObject vfx = Instantiate(deathVFXPrefab, transform.position, Quaternion.identity);
-            Debug.Log($"[HealthBase] Spawn VFX: {vfx.name} tại {vfx.transform.position}");
         }
 
         Die();

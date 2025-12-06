@@ -16,7 +16,6 @@ public class DamageSource : MonoBehaviour
         if (other.TryGetComponent<EnemyHealth>(out EnemyHealth enemyHealth))
         {
             int finalDamage = damageAmount;
-            Debug.Log($"DamageSource hit {other.name} for {finalDamage} damage");
 
 
             // Nếu là slash (down swing), gây sát thương ngẫu nhiên 1–3
