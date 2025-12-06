@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7619100924889520615}
   - component: {fileID: 326530959323145294}
   - component: {fileID: 7239203706877706466}
+  - component: {fileID: 7886080734403234645}
   m_Layer: 0
   m_Name: GreenSlimeDeath VFX
   m_TagString: Untagged
@@ -4888,3 +4889,15 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &7886080734403234645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6572730948446847801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9ecddb837bd8e340bb0645fa2db5be7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
