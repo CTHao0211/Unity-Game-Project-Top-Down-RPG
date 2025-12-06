@@ -65,8 +65,6 @@ public abstract class HealthBase : MonoBehaviour
         currentHealth -= dmg;
         if (currentHealth < 0) currentHealth = 0;
 
-        Debug.Log($"{gameObject.name} TakeDamage called with dmg={dmg}");
-
         // --- FLASH ---
         if (flash != null)
             flash.StartFlash();
@@ -85,8 +83,6 @@ public abstract class HealthBase : MonoBehaviour
             // Lấy component DamageText
             DamageText dt = popupGO.GetComponent<DamageText>();
             dt.Setup(dmg, popupColor);
-
-            Debug.Log("Popup created for damage: " + dmg);
         }
 
 

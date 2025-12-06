@@ -26,8 +26,7 @@ public class DamageText : MonoBehaviour
     /// <param name="overrideColor">Màu tuỳ chọn, nếu null sẽ dùng màu prefab</param>
     public void Setup(int dmg, Color? overrideColor = null)
     {
-            Debug.Log("Setup called for DamageText: " + dmg);
-    textMesh.text = dmg.ToString();
+         textMesh.text = dmg.ToString();
 
         // Nếu có màu override, dùng nó; nếu không, dùng màu prefab
         currentColor = overrideColor ?? textMesh.color;
