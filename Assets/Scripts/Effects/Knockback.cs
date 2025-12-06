@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Knockback : MonoBehaviour
@@ -18,8 +17,18 @@ public class Knockback : MonoBehaviour
     public void GetKnockedBack(Transform damageSource, float knockBackThrust)
     {
         gettingKnockedBack = true;
-        Vector2 difference = (transform.position - damageSource.position).normalized * knockBackThrust * rb.mass;
+
+        // ⭐ CHỈ LẤY X,Y — KHÔNG CHO Z THAM GIA TÍNH LỰC
+        Vector2 difference = new Vector2(
+            transform.position.x - damageSource.position.x,
+            transform.position.y - damageSource.position.y
+        ).normalized * knockBackThrust * rb.mass;
+
         rb.AddForce(difference, ForceMode2D.Impulse);
+
+        // ⭐ GIỮ ENEMY LUÔN Ở Z = 0
+        transform.position = new Vector3(transform.position.x, transform.position.y, 0);
+
         StartCoroutine(KnockRoutine());
     }
 
@@ -28,5 +37,8 @@ public class Knockback : MonoBehaviour
         yield return new WaitForSeconds(knockBackTime);
         rb.velocity = Vector2.zero;
         gettingKnockedBack = false;
+
+        // ⭐ ĐẢM BẢO SAU KNOCKBACK KHÔNG BỊ LỆCH Z
+        transform.position = new Vector3(transform.position.x, transform.position.y, 0);
     }
 }

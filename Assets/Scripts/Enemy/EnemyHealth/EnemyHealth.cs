@@ -21,22 +21,21 @@ public class EnemyHealth : MonoBehaviour
         currentHealth -= damage;
         Debug.Log($"[EnemyHealth] Bị trúng đòn, máu còn: {currentHealth}");
 
+        // Flash
+        if (flash != null)
+        {
+            Debug.Log("[EnemyHealth] Gọi StartFlash");
+            flash.StartFlash();
+        }
+
         // Knockback
         if (knockback != null && PlayerControllerCombined.instance != null)
         {
             knockback.GetKnockedBack(PlayerControllerCombined.instance.transform, 15f);
         }
 
-        // Flash
-        if (flash != null)
-        {
-            Debug.Log("[EnemyHealth] Gọi FlashRoutine");
-            StartCoroutine(flash.FlashRoutine());
-        }
-        else
-        {
-            DetectDeath();
-        }
+        // Kiểm tra chết
+        DetectDeath();
     }
 
     public void DetectDeath()

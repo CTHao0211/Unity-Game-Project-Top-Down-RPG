@@ -14,7 +14,6 @@ public class Sword : MonoBehaviour
     private Animator myAnimator;
     private PlayerControllerCombined playerController;
     private Transform swordPivot;
-    private GameObject currentSlash;
 
     private int lastFacingDirection = 1; // 1 = right, -1 = left
 
@@ -23,7 +22,6 @@ public class Sword : MonoBehaviour
 
     private bool canAttack = true;
 
-    // ⭐ THÊM HAI BIẾN NÀY (giống code tham khảo)
     private Quaternion defaultRotationRight;
     private Vector3 defaultPositionRight;
 
@@ -31,7 +29,6 @@ public class Sword : MonoBehaviour
     {
         playerController = GetComponentInParent<PlayerControllerCombined>();
         myAnimator = GetComponent<Animator>();
-        playerControls = new PlayerControls();
         swordPivot = transform.parent;
 
         if (playerController == null)
@@ -46,9 +43,10 @@ public class Sword : MonoBehaviour
     {
         canAttack = true;
 
-        // Ẩn hitbox
-        if (weaponCollider != null)
-            weaponCollider.gameObject.SetActive(false);
+        // // Ẩn hitbox
+        // if (weaponCollider != null)
+        //     weaponCollider.gameObject.SetActive(false);
+        weaponCollider.enabled = false;
 
         // ⭐ LƯU VỊ TRÍ / ROTATION GỐC BÊN PHẢI
         defaultRotationRight = swordPivot.localRotation;
@@ -60,32 +58,44 @@ public class Sword : MonoBehaviour
             Attack();
         }
 
-    private void Attack()
+    private void Attack(){
+        PerformAttack();
+    }
+    private void PerformAttack()
     {
         if (!canAttack) return;
 
         myAnimator?.SetTrigger("Attack");
 
-        // Spawn Slash khi swing xuống
+        // Lấy DamageSource từ collider
+        DamageSource dmg = weaponCollider.GetComponent<DamageSource>();
+        if (dmg != null)
+        {
+            if (currentSwing == SwingDirection.Down)
+                dmg.attackType = DamageSource.AttackType.SlashCrit;
+            else
+                dmg.attackType = DamageSource.AttackType.Normal;
+        }
+
         if (currentSwing == SwingDirection.Down)
             SpawnSlashEffect();
 
-        // Hitbox bật/tắt
         StartCoroutine(HitboxRoutine());
 
-        // Đổi swing cho lần kế
         currentSwing = (currentSwing == SwingDirection.Down) ? SwingDirection.Up : SwingDirection.Down;
 
-        // Cooldown
         StartCoroutine(AttackCooldownRoutine());
     }
 
     private void OnEnable()
     {
+        if (playerControls == null)
+            playerControls = new PlayerControls();
+
         playerControls.Enable();
-        playerControls.Combat.Attack.performed -= OnAttack;
         playerControls.Combat.Attack.performed += OnAttack;
     }
+
 
     private void OnDisable()
     {
@@ -93,32 +103,31 @@ public class Sword : MonoBehaviour
         playerControls.Disable();
     }
 
-    private void OnAttack(InputAction.CallbackContext ctx)
-    {
-        if (!canAttack) return;
-
-        myAnimator?.SetTrigger("Attack");
-
-        // ⭐ Slash chỉ xuất hiện khi Swing Down
-        if (currentSwing == SwingDirection.Down)
-            SpawnSlashEffect();
-
-        // Hitbox bật theo thời gian
-        StartCoroutine(HitboxRoutine());
-
-        // Đổi swing cho lần tới
-        currentSwing = (currentSwing == SwingDirection.Down) ? SwingDirection.Up : SwingDirection.Down;
-
-        // cooldown
-        StartCoroutine(AttackCooldownRoutine());
+    private void OnAttack(InputAction.CallbackContext ctx){
+    PerformAttack();
     }
 
     private IEnumerator HitboxRoutine()
     {
-        weaponCollider.gameObject.SetActive(true);
-        yield return new WaitForSeconds(hitboxActiveTime);
-        weaponCollider.gameObject.SetActive(false);
+        float timer = 0f;
+
+        weaponCollider.enabled = true; // bật collider (ko tắt GameObject nữa!)
+
+        while (timer < hitboxActiveTime)
+        {
+            // collider đi theo slash
+            weaponCollider.transform.position = slashSpawnPoint.position;
+            weaponCollider.transform.rotation = slashSpawnPoint.rotation;
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        weaponCollider.enabled = false;
     }
+
+
+
 
     private IEnumerator AttackCooldownRoutine()
     {
@@ -148,14 +157,9 @@ public class Sword : MonoBehaviour
     public void DoneAttackingAnimEvent()
     {
         if (weaponCollider != null)
-            weaponCollider.gameObject.SetActive(false);
-
-        if (currentSlash != null)
-        {
-            Destroy(currentSlash);
-            currentSlash = null;
-        }
+            weaponCollider.enabled = false;
     }
+
 
     private void LateUpdate()
     {
