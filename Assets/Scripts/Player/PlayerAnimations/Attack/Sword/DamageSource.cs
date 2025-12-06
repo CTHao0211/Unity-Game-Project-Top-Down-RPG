@@ -23,7 +23,7 @@ public class DamageSource : MonoBehaviour
                 finalDamage = Random.Range(1, 4); // 1–3 damage
             }
 
-            enemyHealth.TakeDamage(finalDamage);
+            enemyHealth.TakeDamage(finalDamage, transform);
         }
     }
 }
