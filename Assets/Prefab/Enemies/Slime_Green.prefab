@@ -423,6 +423,7 @@ MonoBehaviour:
   knockbackForce: 12
   damagePopupPrefab: {fileID: 3142056955576275207, guid: 94aec01a03ffa6b47891eafc95bba898, type: 3}
   popupCanvas: {fileID: 1264110304456348700}
+  deathVFXPrefab: {fileID: 0}
   hideDelay: 5
 --- !u!212 &2807371644782044378
 SpriteRenderer:

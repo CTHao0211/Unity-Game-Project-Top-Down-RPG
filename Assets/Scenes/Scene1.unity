@@ -31178,14 +31178,6 @@ PrefabInstance:
       propertyPath: dashButtonCanvasGroup
       value: 
       objectReference: {fileID: 2124275285}
-    - target: {fileID: 2918818230069463432, guid: b556b6516a33af148ad91512ada786f2, type: 3}
-      propertyPath: attackType
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3133708239153364810, guid: b556b6516a33af148ad91512ada786f2, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8293655895722405300, guid: b556b6516a33af148ad91512ada786f2, type: 3}
       propertyPath: m_Name
       value: Player
