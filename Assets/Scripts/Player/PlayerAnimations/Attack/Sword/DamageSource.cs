@@ -1,31 +1,26 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class DamageSource : MonoBehaviour
 {
-    // Sát thương cơ bản
-    [SerializeField] private int damageAmount = 5;
+    [SerializeField] int damageAmount = 5;
 
-    // Loại đòn đánh được gán từ Sword
-    public enum AttackType { Normal, SlashCrit }
-    public AttackType attackType = AttackType.Normal;
+    private HashSet<int> hitTargets = new HashSet<int>();
+
+    private void OnEnable()
+    {
+        hitTargets.Clear(); // reset mỗi khi hitbox bật
+    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.TryGetComponent<EnemyHealth>(out EnemyHealth enemyHealth))
-        {
-            int finalDamage = damageAmount;
+        if (!other.TryGetComponent<EnemyHealth>(out var enemy)) return;
 
+        int id = other.gameObject.GetInstanceID();
+        if (hitTargets.Contains(id)) return;
 
-            // Nếu là slash (down swing), gây sát thương ngẫu nhiên 1–3
-            if (attackType == AttackType.SlashCrit)
-            {
-                finalDamage = Random.Range(1, 4); // 1–3 damage
-            }
+        hitTargets.Add(id);
 
-            enemyHealth.TakeDamage(finalDamage, transform);
-        }
+        enemy.TakeDamage(damageAmount, transform);
     }
 }
-

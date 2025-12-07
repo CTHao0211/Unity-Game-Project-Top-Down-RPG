@@ -367,7 +367,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4094882732013447497}
-  - component: {fileID: 6977190959354875714}
   - component: {fileID: 2807371644782044378}
   - component: {fileID: 2367033895110574394}
   - component: {fileID: 5859292397181786016}
@@ -399,32 +398,6 @@ Transform:
   - {fileID: 1264110304456348700}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6977190959354875714
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2928494696422928870}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69ef532fe10ac1b46a922ec8fc91f3bf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hideWhenFull: 1
-  faceCamera: 1
-  maxHealth: 10
-  currentHealth: 0
-  healthBarCanvas: {fileID: 0}
-  fillBar: {fileID: 0}
-  healthText: {fileID: 0}
-  flash: {fileID: 0}
-  knockback: {fileID: 0}
-  knockbackForce: 12
-  damagePopupPrefab: {fileID: 3142056955576275207, guid: 94aec01a03ffa6b47891eafc95bba898, type: 3}
-  popupCanvas: {fileID: 1264110304456348700}
-  deathVFXPrefab: {fileID: 0}
-  hideDelay: 5
 --- !u!212 &2807371644782044378
 SpriteRenderer:
   m_ObjectHideFlags: 0
