@@ -99,7 +99,11 @@ public class PlayerControllerCombined : MonoBehaviour
 
     private void Move()
     {
-        if(!canMove) return; // Nếu đang attack, không di chuyển
+        if(!canMove){
+        rb.velocity = Vector2.zero;
+        return; }// Nếu đang attack, không di chuyển
+        Vector2 targetVelocity = movement * moveSpeed;
+        rb.velocity = targetVelocity;
         rb.MovePosition(rb.position + movement * (moveSpeed * Time.fixedDeltaTime));
     }
 

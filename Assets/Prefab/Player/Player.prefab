@@ -104,7 +104,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageAmount: 5
-  attackType: 0
 --- !u!1 &1482860956285527221
 GameObject:
   m_ObjectHideFlags: 0
@@ -211,7 +210,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageAmount: 5
-  attackType: 0
 --- !u!1 &2222891124324431548
 GameObject:
   m_ObjectHideFlags: 0
@@ -322,7 +320,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageAmount: 5
-  attackType: 0
 --- !u!1 &3236509799639329540
 GameObject:
   m_ObjectHideFlags: 0
@@ -473,7 +470,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageAmount: 5
-  attackType: 0
 --- !u!1 &5663012412651425148
 GameObject:
   m_ObjectHideFlags: 0
@@ -605,6 +601,7 @@ MonoBehaviour:
   - {fileID: 1482860956285527221}
   attackCooldown: 0.5
   playerAnimator: {fileID: 0}
+  attackButtonCanvasGroup: {fileID: 0}
   isAttacking: 0
   hasDealtDamage: 0
 --- !u!1 &6638890992930821996
@@ -716,7 +713,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageAmount: 5
-  attackType: 0
 --- !u!1 &7224389377253994315
 GameObject:
   m_ObjectHideFlags: 0
@@ -824,7 +820,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageAmount: 5
-  attackType: 0
 --- !u!1 &7361158071054432188
 GameObject:
   m_ObjectHideFlags: 0
@@ -931,7 +926,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageAmount: 5
-  attackType: 0
 --- !u!1 &8082519120754058387
 GameObject:
   m_ObjectHideFlags: 0
@@ -980,6 +974,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 174169287281564074}
+  - component: {fileID: 3435383829398184213}
+  - component: {fileID: 6821112653296175582}
+  - component: {fileID: 5204755313857970106}
   - component: {fileID: 8646794636928819374}
   - component: {fileID: 1111262417080027401}
   - component: {fileID: 6744024983326240177}
@@ -1009,6 +1006,54 @@ Transform:
   - {fileID: 1404316748340235402}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3435383829398184213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8293655895722405300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58fd9ee23fac1824f850174bacb44405, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  fillBar: {fileID: 0}
+  healthText: {fileID: 0}
+  flash: {fileID: 0}
+  knockback: {fileID: 0}
+  damagePopupPrefab: {fileID: 3142056955576275207, guid: 94aec01a03ffa6b47891eafc95bba898, type: 3}
+  popupCanvas: {fileID: 0}
+  knockbackForce: 10
+--- !u!114 &6821112653296175582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8293655895722405300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6762bbaaeca01c94d9307f1ca6e6474e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  knockBackTime: 0.2
+--- !u!114 &5204755313857970106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8293655895722405300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7057a0e7ff8faf74ca0f39fef34e6f9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
+  flashDuration: 0.12
 --- !u!212 &8646794636928819374
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1073,7 +1118,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c1846824aed7754fb65b4680b5e3a37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 4
+  moveSpeed: 3
   dashSpeed: 4
   myTrailRenderer: {fileID: 7757017889272056054}
   dashButtonCanvasGroup: {fileID: 0}
@@ -1159,8 +1204,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.04723427, y: -0.9933975}
-  m_Size: {x: 0.96224433, y: 0.4854005}
+  m_Offset: {x: -0.047234267, y: -0.95192194}
+  m_Size: {x: 0.96224445, y: 0.56835157}
   m_Direction: 1
 --- !u!1 &8455535457599113742
 GameObject:
@@ -1271,7 +1316,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageAmount: 5
-  attackType: 0
 --- !u!1 &8457427080082389456
 GameObject:
   m_ObjectHideFlags: 0
