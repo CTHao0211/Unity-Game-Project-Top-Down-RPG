@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -27,17 +26,9 @@ public abstract class HealthBase : MonoBehaviour
     [SerializeField] protected DamageText damagePopupPrefab;
     [SerializeField] protected Transform popupCanvas;
 
-    [Header("Death VFX")]
-    [SerializeField] protected GameObject deathVFXPrefab;
-
-    [SerializeField] private float hideDelay = 5f; // 5 giây sau khi nhận damage
-    private Coroutine hideRoutine;
-
     protected virtual void Awake()
     {
         currentHealth = maxHealth;
-        if (flash == null) flash = GetComponent<Flash>();
-        if (knockback == null) knockback = GetComponent<Knockback>();
 
         if (healthBarCanvas == null)
             healthBarCanvas = GetComponentInChildren<Canvas>(true);
@@ -59,6 +50,9 @@ public abstract class HealthBase : MonoBehaviour
         if (healthText == null)
             healthText = barRoot.GetComponentInChildren<TMP_Text>(true);
 
+        flash = flash ?? GetComponent<Flash>();
+        knockback = knockback ?? GetComponent<Knockback>();
+
         UpdateHealthBar();
     }
 
@@ -70,50 +64,24 @@ public abstract class HealthBase : MonoBehaviour
         currentHealth -= dmg;
         if (currentHealth < 0) currentHealth = 0;
 
-        // --- FLASH ---
-        if (flash != null)
-            flash.StartFlash();
+        flash?.StartFlash();
+        if (source != null)
+            knockback?.GetKnockedBack(source, knockbackForce);
 
-        // --- KNOCKBACK ---
-        if (knockback != null)
-            knockback.GetKnockedBack(source ?? transform, knockbackForce);
-
-        // --- DAMAGE POPUP ---
+        // === SPAWN DAMAGE POPUP ===
         if (damagePopupPrefab != null && popupCanvas != null)
         {
-            GameObject popupGO = Instantiate(damagePopupPrefab.gameObject, popupCanvas);
-            popupGO.SetActive(true);
-
-            DamageText dt = popupGO.GetComponent<DamageText>();
+            DamageText dt = Instantiate(damagePopupPrefab, popupCanvas);
+            dt.transform.localScale = Vector3.one;
             dt.Setup(dmg, popupColor);
         }
 
-        // --- UPDATE HEALTHBAR ---
         UpdateHealthBar();
 
-        // --- ẨN HEALTHBAR SAU hideDelay ---
-        if (currentHealth > 0 && hideWhenFull)
-        {
-            if (hideRoutine != null)
-                StopCoroutine(hideRoutine);
-            hideRoutine = StartCoroutine(HideHealthBarAfterDelay());
-        }
-
-        // --- KIỂM TRA CHẾT ---
         if (currentHealth <= 0)
-            DieWithVFX();
+            Die();
     }
 
-    private void DieWithVFX()
-    {
-        // --- SPAWN DEATH VFX ---
-        if (deathVFXPrefab != null)
-        {
-            GameObject vfx = Instantiate(deathVFXPrefab, transform.position, Quaternion.identity);
-        }
-
-        Die();
-    }
 
     protected virtual void UpdateHealthBar()
     {
@@ -125,46 +93,21 @@ public abstract class HealthBase : MonoBehaviour
         if (healthText != null)
         {
             healthText.text = $"{currentHealth}/{maxHealth}";
+            // Đảm bảo healthText hiển thị trên FillBar
             healthText.transform.SetAsLastSibling();
         }
 
         if (healthBarCanvas != null && hideWhenFull)
-        {
-            if (!isHiding)
-            {
-                healthBarCanvas.enabled = ratio < 1f;
-            }
-        }
-    }
-
-    private bool isHiding = false;
-    private IEnumerator HideHealthBarAfterDelay()
-    {
-        isHiding = true;
-        yield return new WaitForSeconds(hideDelay);
-        if (healthBarCanvas != null)
-            healthBarCanvas.enabled = false;
-        isHiding = false;
+            healthBarCanvas.enabled = ratio < 1f;
     }
 
     protected virtual void LateUpdate()
     {
         if (!faceCamera || healthBarCanvas == null) return;
 
-        Vector3 dir = healthBarCanvas.transform.position - Camera.main.transform.position;
-        dir.y = 0f; // giữ healthbar thẳng
-        if (dir.sqrMagnitude > 0.001f)
-        {
-            healthBarCanvas.transform.rotation = Quaternion.LookRotation(dir);
-
-            // Quay text con riêng để không bị lộn ngược
-            foreach (TMP_Text txt in healthBarCanvas.GetComponentsInChildren<TMP_Text>())
-            {
-                txt.transform.rotation = Quaternion.LookRotation(txt.transform.position - Camera.main.transform.position);
-            }
-        }
+        healthBarCanvas.transform.LookAt(Camera.main.transform);
+        healthBarCanvas.transform.Rotate(0, 180, 0);
     }
 
-    // --- Hàm abstract để lớp con override ---
     protected abstract void Die();
 }

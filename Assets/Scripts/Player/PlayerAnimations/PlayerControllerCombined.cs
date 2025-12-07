@@ -199,7 +199,6 @@ private IEnumerator EndDashRoutine() {
         Sword sword = GetComponentInChildren<Sword>();
         if (sword != null)
             sword.DoneAttackingAnimEvent();
-
     }
 
 }
