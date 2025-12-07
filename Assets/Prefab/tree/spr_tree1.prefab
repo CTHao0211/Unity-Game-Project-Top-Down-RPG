@@ -10,7 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 8266192885248564649}
   - component: {fileID: 1810647942973913364}
+  - component: {fileID: 8812204154880918239}
   - component: {fileID: 4029593586588076549}
+  - component: {fileID: 8131109466043224933}
   m_Layer: 0
   m_Name: spr_tree1
   m_TagString: Untagged
@@ -85,6 +87,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
+--- !u!114 &8812204154880918239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2897894682557758414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4b7a361c793c154ba7c100d6e281497, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  transparencyAmount: 0.8
+  fadeTime: 0.4
 --- !u!70 &4029593586588076549
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -117,6 +133,41 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.024823083, y: -0.17232007}
-  m_Size: {x: 0.83886164, y: 0.6071529}
+  m_Offset: {x: -0.011122542, y: -0.14086787}
+  m_Size: {x: 0.91075385, y: 0.6700581}
   m_Direction: 1
+--- !u!58 &8131109466043224933
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2897894682557758414}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.06739807, y: 1.4295917}
+  serializedVersion: 2
+  m_Radius: 1.0699081
