@@ -4,88 +4,75 @@ using UnityEngine.InputSystem;
 
 public class Sword : MonoBehaviour
 {
-    [SerializeField] private GameObject slashEffectPrefab;
-    [SerializeField] private Transform slashSpawnPoint;
-    [SerializeField] private PolygonCollider2D weaponCollider;
-    [SerializeField] private float hitboxActiveTime = 0.15f;
+    [SerializeField] private GameObject[] swingHitboxes;
     [SerializeField] private float attackCooldown = 0.5f;
+    [SerializeField] private Animator playerAnimator;
+    [SerializeField] private CanvasGroup attackButtonCanvasGroup;
 
     private PlayerControls playerControls;
-    private Animator myAnimator;
     private PlayerControllerCombined playerController;
-    private Transform swordPivot;
-
-    private int lastFacingDirection = 1; // 1 = right, -1 = left
 
     private enum SwingDirection { Down, Up }
     private SwingDirection currentSwing = SwingDirection.Down;
 
     private bool canAttack = true;
+    private bool bufferedAttack = false;
+    [HideInInspector] public bool isAttacking = false;
+    [HideInInspector] public bool hasDealtDamage = false;
 
-    private Quaternion defaultRotationRight;
-    private Vector3 defaultPositionRight;
 
     private void Awake()
     {
         playerController = GetComponentInParent<PlayerControllerCombined>();
-        myAnimator = GetComponent<Animator>();
-        swordPivot = transform.parent;
 
-        if (playerController == null)
-            Debug.LogError("Sword: Không tìm thấy PlayerControllerCombined!");
-        if (swordPivot == null)
-            Debug.LogError("Sword: Không tìm thấy WeaponPivot!");
-        if (weaponCollider == null)
-            Debug.LogError("Sword: Chưa gán WeaponCollider!");
+        if (playerAnimator == null && playerController != null)
+            playerAnimator = playerController.GetComponent<Animator>();
+
+        if (playerAnimator == null) Debug.LogError("Sword: Không tìm thấy Player Animator!");
+        if (playerController == null) Debug.LogError("Sword: Không tìm thấy PlayerControllerCombined!");
     }
 
-    private void Start()
+    private void EnableSwingHitbox(int swingIndex)
     {
-        canAttack = true;
-
-        // // Ẩn hitbox
-        // if (weaponCollider != null)
-        //     weaponCollider.gameObject.SetActive(false);
-        weaponCollider.enabled = false;
-
-        // ⭐ LƯU VỊ TRÍ / ROTATION GỐC BÊN PHẢI
-        defaultRotationRight = swordPivot.localRotation;
-        defaultPositionRight = swordPivot.localPosition;
+        for (int i = 0; i < swingHitboxes.Length; i++)
+            swingHitboxes[i].SetActive(i == swingIndex);
     }
-        // === HÀM GỌI TỪ NÚT ATTACK ===
-        public void OnAttackButton()
-        {
-            Attack();
-        }
 
-    private void Attack(){
-        PerformAttack();
+    public void OnAttackButton() => PerformAttack();
+
+    private void OnAttack(InputAction.CallbackContext ctx)
+    {
+        if (canAttack) PerformAttack();
+        else bufferedAttack = true;
     }
+
     private void PerformAttack()
     {
-        if (!canAttack) return;
+    if (!canAttack) return;
 
-        myAnimator?.SetTrigger("Attack");
+    // Lock movement
+    playerController.LockMovement(true);
+    playerController.RB.constraints = RigidbodyConstraints2D.FreezeAll;
 
-        // Lấy DamageSource từ collider
-        DamageSource dmg = weaponCollider.GetComponent<DamageSource>();
-        if (dmg != null)
-        {
-            if (currentSwing == SwingDirection.Down)
-                dmg.attackType = DamageSource.AttackType.SlashCrit;
-            else
-                dmg.attackType = DamageSource.AttackType.Normal;
-        }
+    // Determine swing index
+    Vector2 playerDir = playerController.LastMovement;
+    int swingIndex = GetSwingIndex(playerDir, currentSwing);
+    EnableSwingHitbox(swingIndex);
 
-        if (currentSwing == SwingDirection.Down)
-            SpawnSlashEffect();
+    int swordLayerIndex = playerAnimator.GetLayerIndex("SwordAttack");
+    if (swordLayerIndex != -1 && playerAnimator.GetLayerWeight(swordLayerIndex) == 0f)
+        playerAnimator.SetLayerWeight(swordLayerIndex, 1f);
 
-        StartCoroutine(HitboxRoutine());
+    playerAnimator.SetBool("UsingSword", true);
+    playerAnimator.SetFloat("SwingIndex", swingIndex);
+    playerAnimator.SetTrigger("AttackTrigger");
 
-        currentSwing = (currentSwing == SwingDirection.Down) ? SwingDirection.Up : SwingDirection.Down;
+    hasDealtDamage = false;   
+    isAttacking = true;
 
-        StartCoroutine(AttackCooldownRoutine());
-    }
+    StartCoroutine(AttackCooldownRoutine()); // <-- chỉ 1 lần
+}
+
 
     private void OnEnable()
     {
@@ -96,102 +83,98 @@ public class Sword : MonoBehaviour
         playerControls.Combat.Attack.performed += OnAttack;
     }
 
-
     private void OnDisable()
     {
-        playerControls.Combat.Attack.performed -= OnAttack;
-        playerControls.Disable();
-    }
-
-    private void OnAttack(InputAction.CallbackContext ctx){
-    PerformAttack();
-    }
-
-    private IEnumerator HitboxRoutine()
-    {
-        float timer = 0f;
-
-        weaponCollider.enabled = true; // bật collider (ko tắt GameObject nữa!)
-
-        while (timer < hitboxActiveTime)
+        if (playerControls != null)
         {
-            // collider đi theo slash
-            weaponCollider.transform.position = slashSpawnPoint.position;
-            weaponCollider.transform.rotation = slashSpawnPoint.rotation;
-
-            timer += Time.deltaTime;
-            yield return null;
+            playerControls.Combat.Attack.performed -= OnAttack;
+            playerControls.Disable();
         }
-
-        weaponCollider.enabled = false;
     }
-
-
-
 
     private IEnumerator AttackCooldownRoutine()
     {
         canAttack = false;
-        yield return new WaitForSeconds(attackCooldown);
+
+        // Nếu có CanvasGroup cho attack -> mờ đi
+        if (attackButtonCanvasGroup)
+        {
+            attackButtonCanvasGroup.alpha = 0.3f;
+            attackButtonCanvasGroup.interactable = false;
+        }
+
+        float elapsed = 0f;
+        while (elapsed < attackCooldown)
+        {
+            elapsed += Time.deltaTime;
+
+            if (attackButtonCanvasGroup)
+            {
+                float t = elapsed / attackCooldown;
+                attackButtonCanvasGroup.alpha = Mathf.Lerp(0.3f, 1f, t);
+            }
+
+            yield return null;
+        }
+
         canAttack = true;
-    }
 
-    private void SpawnSlashEffect()
-    {
-        if (slashEffectPrefab == null || slashSpawnPoint == null) return;
+        // Bật lại nút
+        if (attackButtonCanvasGroup)
+        {
+            attackButtonCanvasGroup.alpha = 1f;
+            attackButtonCanvasGroup.interactable = true;
+        }
 
-        // Spawn tại vị trí sword hiện tại
-        GameObject slash = Instantiate(slashEffectPrefab, slashSpawnPoint.position, Quaternion.identity);
-
-        // Đặt scale flip theo hướng player
-        slash.transform.localScale = (lastFacingDirection < 0) ? new Vector3(-1, 1, 1) : Vector3.one;
-
-        // Nếu Slash prefab có Rigidbody2D hoặc Animator, hãy đảm bảo nó không parent theo player
-        slash.transform.parent = slashSpawnPoint;
-
-
-        // Rotation reset
-        slash.transform.rotation = Quaternion.identity;
+        if (bufferedAttack)
+        {
+            bufferedAttack = false;
+            PerformAttack();
+        }
     }
 
     public void DoneAttackingAnimEvent()
     {
-        if (weaponCollider != null)
-            weaponCollider.enabled = false;
+        // Tắt tất cả hitbox
+        foreach (var h in swingHitboxes)
+            h.SetActive(false);
+
+        // Tắt animation layer
+        int swordLayerIndex = playerAnimator.GetLayerIndex("SwordAttack");
+        if (!bufferedAttack && swordLayerIndex != -1)
+            playerAnimator.SetLayerWeight(swordLayerIndex, 0f);
+
+        playerAnimator.SetBool("UsingSword", false);
+
+        isAttacking = false;
+
+        // Unlock movement
+        playerController.LockMovement(false);
+        playerController.RB.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        // Nếu có buffered attack -> play ngay sau khi xong
+        if (bufferedAttack)
+        {
+            bufferedAttack = false;
+            PerformAttack();
+        }
+
+        // Swap combo direction
+        currentSwing = (currentSwing == SwingDirection.Down) ? SwingDirection.Up : SwingDirection.Down;
     }
 
-
-    private void LateUpdate()
+    private int GetSwingIndex(Vector2 playerDir, SwingDirection swing)
     {
-        FaceMoveDirection();
-    }
+        float angle = Mathf.Atan2(playerDir.y, playerDir.x) * Mathf.Rad2Deg;
+        if (angle < 0) angle += 360f;
 
-    private void FaceMoveDirection()
-    {
-        if (playerController == null || swordPivot == null) return;
+        int dir =
+            angle >= 45 && angle < 135 ? 0 :      // Up
+            angle >= 135 && angle < 225 ? 1 :     // Left
+            angle >= 225 && angle < 315 ? 2 :     // Down
+            3;                                    // Right
 
-        Vector2 dir = playerController.Movement;
-
-        // Update hướng
-        if (Mathf.Abs(dir.x) > 0.01f)
-            lastFacingDirection = dir.x < 0 ? -1 : 1;
-
-        // ⭐ Flip giống code tham chiếu
-        if (lastFacingDirection < 0)
-        {
-            swordPivot.localScale = new Vector3(-1, 1, 1);
-            swordPivot.localRotation = defaultRotationRight;
-            swordPivot.localPosition = new Vector3(
-                -defaultPositionRight.x,
-                defaultPositionRight.y,
-                defaultPositionRight.z
-            );
-        }
-        else
-        {
-            swordPivot.localScale = Vector3.one;
-            swordPivot.localRotation = defaultRotationRight;
-            swordPivot.localPosition = defaultPositionRight;
-        }
+        int swingOffset = (swing == SwingDirection.Down) ? 0 : 1;
+        return dir * 2 + swingOffset;
     }
 }

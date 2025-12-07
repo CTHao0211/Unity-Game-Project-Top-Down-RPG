@@ -13,7 +13,10 @@ public class PlayerControllerCombined : MonoBehaviour
 
     private PlayerControls playerControls; // Input System cho PC
     private Vector2 movement;
-    private Rigidbody2D rb;
+    [SerializeField] private Rigidbody2D rb; 
+
+    public Rigidbody2D RB => rb;
+
     private Animator myAnimator;
     private SpriteRenderer mySpriteRender;
 
@@ -32,10 +35,14 @@ public class PlayerControllerCombined : MonoBehaviour
         playerControls = new PlayerControls();
     }
     private void Start() {
-        playerControls.Combat.Dash.performed += _ => Dash();
-
+    playerControls.Combat.Dash.performed += ctx => {
+        Sword sword = GetComponentInChildren<Sword>();
+        if (sword != null && sword.isAttacking) return; // Không dash khi đang attack
+        Dash();
+    };
         startingMoveSpeed = moveSpeed;
     }
+
     public void OnDashButton()
     {
         Dash();
@@ -54,60 +61,84 @@ public class PlayerControllerCombined : MonoBehaviour
     private void Update()
     {
         PlayerInput();
-        AdjustPlayerFacingDirection();
+        AdjustAnimatorParams();
     }
+
 
     private void FixedUpdate()
     {
         Move();
     }
 
+    private Vector2 lastMovement = Vector2.down;
+
+    public Vector2 LastMovement => lastMovement;
+
     private void PlayerInput()
     {
         Vector2 pcInput = playerControls.Movement.Move.ReadValue<Vector2>();
         Vector2 joystickInput = new Vector2(moveJoystick.Horizontal, moveJoystick.Vertical);
 
-        // Chuẩn hóa joystick nếu quá lớn
-        if (joystickInput.sqrMagnitude > 1f)
-            joystickInput = joystickInput.normalized;
+        Vector2 input = pcInput.sqrMagnitude > 0.01f ? pcInput :
+                        joystickInput.sqrMagnitude > 0.01f ? joystickInput :
+                        Vector2.zero;
 
-        // Ưu tiên AWSD/PC
-        if (pcInput.sqrMagnitude > 0.01f)
-        {
-            movement = pcInput;
-        }
-        else if (joystickInput.sqrMagnitude > 0.01f)
-        {
-            movement = joystickInput;
-        }
-        else
-        {
-            movement = Vector2.zero;
-        }
+        if(input.sqrMagnitude > 0.01f)
+            lastMovement = input;
 
-        // Giữ nguyên Animator và flip theo AWSD/joystick
-        if (myAnimator != null)
-        {
-            myAnimator.SetFloat("moveX", movement.x);
-            myAnimator.SetFloat("moveY", movement.y);
-        }
+        movement = input;
+
+        myAnimator.SetFloat("MoveSpeed", movement.magnitude);
+        
+        float angle = Mathf.Atan2(lastMovement.y, lastMovement.x) * Mathf.Rad2Deg - 90f;
+        if(angle < 0) angle += 360f;
+        myAnimator.SetFloat("DirectionAngle", angle);
     }
+    private bool canMove = true; // Mặc định được di chuyển
+    public bool CanMove => canMove;
 
     private void Move()
     {
+        if(!canMove) return; // Nếu đang attack, không di chuyển
         rb.MovePosition(rb.position + movement * (moveSpeed * Time.fixedDeltaTime));
     }
 
+    public void LockMovement(bool value)
+    {
+        canMove = !value;
+    }
+
+
+
+    // Thay enum và integer bằng float
     private void AdjustPlayerFacingDirection()
     {
         if (movement.sqrMagnitude < 0.001f)
             return;
 
-        if (movement.x < 0f)
-            mySpriteRender.flipX = true;
-        else if (movement.x > 0f)
-            mySpriteRender.flipX = false;
+        // Tính góc từ vector movement
+        float angle = Mathf.Atan2(movement.y, movement.x) * Mathf.Rad2Deg;
+        angle -= 90f; // nếu muốn 0° = Down
+        if (angle < 0f) angle += 360f;
+
+        // Gán cho Animator float
+        myAnimator.SetFloat("DirectionAngle", angle);
     }
+    private void AdjustAnimatorParams()
+    {
+        float speed = movement.magnitude; // 0 = Idle, >0 = Run
+        myAnimator.SetFloat("MoveSpeed", speed);
+
+        if (movement.sqrMagnitude > 0.001f)
+        {
+            float angle = Mathf.Atan2(movement.y, movement.x) * Mathf.Rad2Deg;
+            angle -= 90f; // 0° = Down
+            if (angle < 0) angle += 360f;
+            myAnimator.SetFloat("DirectionAngle", angle);
+        }
+    }
+
+
     private void Dash() {
         if (!isDashing) {
             isDashing = true;
@@ -162,6 +193,13 @@ private IEnumerator EndDashRoutine() {
             dashButtonCanvasGroup.alpha = 1f;
             dashButtonCanvasGroup.interactable = true;
         }
+    }
+    public void CallSwordDoneAttack()
+    {
+        Sword sword = GetComponentInChildren<Sword>();
+        if (sword != null)
+            sword.DoneAttackingAnimEvent();
+
     }
 
 }
