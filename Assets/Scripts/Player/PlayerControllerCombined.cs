@@ -35,7 +35,7 @@ public class PlayerControllerCombined : MonoBehaviour
         playerControls = new PlayerControls();
     }
     private void Start() {
-    playerControls.Combat.Dash.performed += ctx => {
+    playerControls.Dash.Dash.performed += ctx => {
         Sword sword = GetComponentInChildren<Sword>();
         if (sword != null && sword.isAttacking) return; // Không dash khi đang attack
         Dash();
