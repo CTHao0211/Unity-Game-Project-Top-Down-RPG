@@ -4,9 +4,12 @@ public class EnemyHealth : HealthBase
 {
     protected override void Die()
     {
-        Debug.Log($"{gameObject.name} enemy died!");
+        AnimalAudio audio = GetComponent<AnimalAudio>();
+        if(audio != null)
+            audio.PlayDeathSound(); // phát deathClip
 
-        // TODO: Add death animation or loot drop
-        Destroy(gameObject);
+        // Các logic chết khác
+        Destroy(gameObject, 0.1f); // delay nhỏ để nghe âm thanh
     }
+
 }

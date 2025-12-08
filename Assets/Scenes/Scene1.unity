@@ -25486,7 +25486,7 @@ Transform:
   m_GameObject: {fileID: 1073532224}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.91, z: 0}
+  m_LocalPosition: {x: 0, y: -1.054, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -25559,7 +25559,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sheep
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1255895276113982300, guid: e8ba0e18306272642b3afc183331f332, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -30126,10 +30127,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1163012067}
     m_Modifications:
-    - target: {fileID: 1564730567214930057, guid: 1c8ce8f7f4078034a901706e9f0e24ea, type: 3}
-      propertyPath: textMesh
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 4861688863869755555, guid: 1c8ce8f7f4078034a901706e9f0e24ea, type: 3}
       propertyPath: m_Name
       value: Cow
@@ -30175,8 +30172,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 1537322237632092553, guid: 1c8ce8f7f4078034a901706e9f0e24ea, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1c8ce8f7f4078034a901706e9f0e24ea, type: 3}
@@ -30440,6 +30436,10 @@ PrefabInstance:
       propertyPath: attackButtonCanvasGroup
       value: 
       objectReference: {fileID: 1133755360}
+    - target: {fileID: 1111262417080027401, guid: b556b6516a33af148ad91512ada786f2, type: 3}
+      propertyPath: moveSpeed
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 1111262417080027401, guid: b556b6516a33af148ad91512ada786f2, type: 3}
       propertyPath: moveJoystick
       value: 
