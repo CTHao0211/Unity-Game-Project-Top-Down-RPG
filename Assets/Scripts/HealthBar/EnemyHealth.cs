@@ -3,6 +3,7 @@ using UnityEngine;
 public class EnemyHealth : HealthBase
 {
     [SerializeField] private GameObject deathVFXPrefab;
+    [SerializeField] private float vfxLifetime = 1.5f;
     public override void TakeDamage(int dmg, Transform source = null, Color? popupColor = null)
     {
         base.TakeDamage(dmg, source, popupColor);
@@ -18,7 +19,8 @@ public class EnemyHealth : HealthBase
         if (deathVFXPrefab != null)
         {
             GameObject vfx = Instantiate(deathVFXPrefab, transform.position, Quaternion.identity);
-            Debug.Log($"[HealthBase] Spawn VFX: {vfx.name} tại {vfx.transform.position}");
+            Destroy(vfx, vfxLifetime);
+
         }
 
         Die(); // gọi logic Die gốc (âm thanh, destroy enemy)

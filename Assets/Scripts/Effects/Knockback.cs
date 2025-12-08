@@ -16,9 +16,13 @@ public class Knockback : MonoBehaviour
 
     public void GetKnockedBack(Transform damageSource, float knockBackThrust)
     {
+        if (rb == null) return;
+
         gettingKnockedBack = true;
 
-        // ⭐ CHỈ LẤY X,Y — KHÔNG CHO Z THAM GIA TÍNH LỰC
+        // reset velocity trước khi đẩy cho knockback rõ hơn
+        rb.velocity = Vector2.zero;
+
         Vector2 difference = new Vector2(
             transform.position.x - damageSource.position.x,
             transform.position.y - damageSource.position.y
@@ -26,7 +30,7 @@ public class Knockback : MonoBehaviour
 
         rb.AddForce(difference, ForceMode2D.Impulse);
 
-        // ⭐ GIỮ ENEMY LUÔN Ở Z = 0
+        // giữ Z = 0
         transform.position = new Vector3(transform.position.x, transform.position.y, 0);
 
         StartCoroutine(KnockRoutine());
@@ -35,10 +39,12 @@ public class Knockback : MonoBehaviour
     private IEnumerator KnockRoutine()
     {
         yield return new WaitForSeconds(knockBackTime);
-        rb.velocity = Vector2.zero;
+
+        if (rb != null)
+            rb.velocity = Vector2.zero;
+
         gettingKnockedBack = false;
 
-        // ⭐ ĐẢM BẢO SAU KNOCKBACK KHÔNG BỊ LỆCH Z
         transform.position = new Vector3(transform.position.x, transform.position.y, 0);
     }
 }
