@@ -61,9 +61,12 @@ public abstract class HealthBase : MonoBehaviour
     /// </summary>
     public virtual void TakeDamage(int dmg, Transform source = null, Color? popupColor = null)
     {
+        
         currentHealth -= dmg;
         if (currentHealth < 0) currentHealth = 0;
-
+        AnimalAudio audio = GetComponent<AnimalAudio>();
+        if(audio != null)
+        audio.PlayHitSound();
         flash?.StartFlash();
         if (source != null)
             knockback?.GetKnockedBack(source, knockbackForce);
