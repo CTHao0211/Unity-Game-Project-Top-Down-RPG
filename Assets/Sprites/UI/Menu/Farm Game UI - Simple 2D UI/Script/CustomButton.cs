@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -66,6 +66,14 @@ namespace FGUIStarter
             else
             {
                 ApplyNormalVisual();
+            }
+        }
+        private void Update()
+        {
+            if (isHeld)
+            {
+                // Ví dụ giữ nút để tăng speed, hoặc giữ để lặp hành động
+                Debug.Log("Button is being held!");
             }
         }
 

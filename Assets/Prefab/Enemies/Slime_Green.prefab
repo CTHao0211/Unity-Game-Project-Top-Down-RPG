@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1839939231926671705
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8874968049698181292}
+  m_Layer: 0
+  m_Name: AttackPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8874968049698181292
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1839939231926671705}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.4, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4094882732013447497}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2928494696422928870
 GameObject:
   m_ObjectHideFlags: 0
@@ -20,6 +51,7 @@ GameObject:
   - component: {fileID: -4607786669078571667}
   - component: {fileID: -5600953503444250670}
   - component: {fileID: 5834145470437002003}
+  - component: {fileID: 3908368097894583820}
   m_Layer: 0
   m_Name: Slime_Green
   m_TagString: Untagged
@@ -41,6 +73,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 5467803369615357300}
+  - {fileID: 8874968049698181292}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1636204987980004379
@@ -80,7 +113,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hideWhenFull: 1
-  faceCamera: 1
+  faceCamera: 0
   maxHealth: 10
   currentHealth: 0
   healthBarCanvas: {fileID: 0}
@@ -91,6 +124,7 @@ MonoBehaviour:
   knockbackForce: 12
   damagePopupPrefab: {fileID: 3142056955576275207, guid: 94aec01a03ffa6b47891eafc95bba898, type: 3}
   popupCanvas: {fileID: 5467803369615357300}
+  deathVFXPrefab: {fileID: 1955669051570749984, guid: 6f57a7eec9c19e64a9e48031d84c4beb, type: 3}
 --- !u!212 &2807371644782044378
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -375,6 +409,25 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &3908368097894583820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2928494696422928870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06a84d731f36cb54bb03baab6ff365a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skillDamage: 3
+  attackRange: 1.1
+  attackCooldown: 1.5
+  attackPoint: {fileID: 8874968049698181292}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1001 &6515177789464994152
 PrefabInstance:
   m_ObjectHideFlags: 0
