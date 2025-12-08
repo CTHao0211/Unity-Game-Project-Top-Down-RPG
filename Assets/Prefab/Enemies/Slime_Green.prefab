@@ -52,6 +52,7 @@ GameObject:
   - component: {fileID: -5600953503444250670}
   - component: {fileID: 5834145470437002003}
   - component: {fileID: 3908368097894583820}
+  - component: {fileID: 5255379810621704037}
   m_Layer: 0
   m_Name: Slime_Green
   m_TagString: Untagged
@@ -125,6 +126,7 @@ MonoBehaviour:
   damagePopupPrefab: {fileID: 3142056955576275207, guid: 94aec01a03ffa6b47891eafc95bba898, type: 3}
   popupCanvas: {fileID: 5467803369615357300}
   deathVFXPrefab: {fileID: 1955669051570749984, guid: 6f57a7eec9c19e64a9e48031d84c4beb, type: 3}
+  vfxLifetime: 1.5
 --- !u!212 &2807371644782044378
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -280,7 +282,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2928494696422928870}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8c900917ee2bfd44bf2724f77da8b79, type: 3}
   m_Name: 
@@ -428,6 +430,24 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &5255379810621704037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2928494696422928870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9690a56699f9e041a7fb9e390afd249, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 174169287281564074, guid: b556b6516a33af148ad91512ada786f2, type: 3}
+  moveSpeed: 2
+  stopDistance: 0.8
+  aggroRange: 5
+  loseRange: 7
+  returnSpeed: 2
 --- !u!1001 &6515177789464994152
 PrefabInstance:
   m_ObjectHideFlags: 0
