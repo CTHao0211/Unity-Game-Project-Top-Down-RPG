@@ -25,10 +25,11 @@ public abstract class HealthBase : MonoBehaviour
     [Header("Damage Popup")]
     [SerializeField] protected DamageText damagePopupPrefab;
     [SerializeField] protected Transform popupCanvas;
-
+    public bool loadedFromSave = false;
     protected virtual void Awake()
     {
-        currentHealth = maxHealth;
+        if (!loadedFromSave)
+            currentHealth = maxHealth;
 
         if (healthBarCanvas == null)
             healthBarCanvas = GetComponentInChildren<Canvas>(true);
@@ -53,6 +54,12 @@ public abstract class HealthBase : MonoBehaviour
         flash = flash ?? GetComponent<Flash>();
         knockback = knockback ?? GetComponent<Knockback>();
 
+        UpdateHealthBar();
+    }
+    public void ApplyLoadedHP(int hp)
+    {
+        loadedFromSave = true;
+        currentHealth = Mathf.Clamp(hp, 0, maxHealth);
         UpdateHealthBar();
     }
 
