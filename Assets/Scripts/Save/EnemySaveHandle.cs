@@ -49,4 +49,18 @@ public class EnemySaveHandle : MonoBehaviour
             health.currentHealth = Mathf.Clamp(value, 0, health.maxHealth);
         }
     }
+    public void ApplyState(float x, float y, int hp, bool isDead)
+{
+    if (isDead || hp <= 0)
+    {
+        gameObject.SetActive(false);
+        return;
+    }
+
+    transform.position = new Vector3(x, y, transform.position.z);
+
+    if (health != null)
+        health.ApplyLoadedHP(hp); 
+}
+
 }

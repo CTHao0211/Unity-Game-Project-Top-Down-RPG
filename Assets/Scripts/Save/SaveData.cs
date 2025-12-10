@@ -31,9 +31,8 @@ public class AnimalSaveData
     public string id;
     public float posX;
     public float posY;
-    public bool flipX;
     public int currentHP;
-    public bool hasHealth;
+    public bool isDead;
 }
 
 [Serializable]
@@ -45,4 +44,6 @@ public class SaveData
 
     public EnemySaveData[] enemies;
     public AnimalSaveData[] animals;
+    
+    public float gameTime;
 }
