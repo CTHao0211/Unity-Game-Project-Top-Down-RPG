@@ -60,7 +60,16 @@ public class PauseManager : MonoBehaviour
     // Lưu game (tùy chỉnh)
     public void SaveGame()
     {
-        Debug.Log("Game Saved!");
-        // Thêm logic lưu game tại đây
+        Debug.Log("[PauseManager] Save button clicked");
+
+        if (GameSaveManager.Instance != null)
+        {
+            GameSaveManager.Instance.Save();
+            Debug.Log("[PauseManager] Gọi GameSaveManager.Save() xong.");
+        }
+        else
+        {
+            Debug.LogError("[PauseManager] GameSaveManager.Instance == null, không thể save.");
+        }
     }
 }
