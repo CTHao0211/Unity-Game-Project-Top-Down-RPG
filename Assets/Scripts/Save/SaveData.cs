@@ -10,9 +10,6 @@ public class PlayerSaveData
     public int exp;
     public int currentHP;
     public int maxHP;
-
-    public int armorPhysical;
-    public int armorMagic;
 }
 
 [Serializable]
