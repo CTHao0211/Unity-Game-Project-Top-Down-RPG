@@ -42,7 +42,15 @@ public class AnimalSaveHandle : MonoBehaviour
             health.currentHealth = Mathf.Clamp(value, 0, health.maxHealth);
         }
     }
-
+    public bool IsDead
+    {
+        get
+        {
+            if (!gameObject.activeSelf) return true;
+            if (health == null) return false;
+            return health.currentHealth <= 0;
+        }
+    }
     public bool HasHealth => health != null;
 
     public Vector3 GetPosition() => transform.position;
