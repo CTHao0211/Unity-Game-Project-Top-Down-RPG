@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections;
+
 
 public class EnemyHealth : HealthBase
 {
@@ -32,7 +34,14 @@ public class EnemyHealth : HealthBase
         if (audio != null)
             audio.PlayDeathSound();
 
-        Destroy(gameObject, 0.3f); // chờ 1s cho âm thanh chạy xong
-    }   
+        // Tắt thay vì phá hủy
+        StartCoroutine(DisableAfterDelay(0.3f));
+    }
+
+    private IEnumerator DisableAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        gameObject.SetActive(false); 
+    }
 
 }
