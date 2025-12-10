@@ -32,6 +32,7 @@ public class EnemyHealth : HealthBase
         if (audio != null)
             audio.PlayDeathSound();
 
-        gameObject.SetActive(false);
-    }
+        Destroy(gameObject, 0.3f); // chờ 1s cho âm thanh chạy xong
+    }   
+
 }
