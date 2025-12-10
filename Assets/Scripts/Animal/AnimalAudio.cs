@@ -14,6 +14,12 @@ public class AnimalAudio : MonoBehaviour
     [Header("Special Clips")]
     public AudioClip[] specialClips; // âm thanh riêng cho enemy đặc biệt
 
+    [Header("Movement Clips")]
+    public AudioClip[] movementClips;     // tiếng bước chân, tiếng xương
+    public float movementInterval = 0.4f; // tốc độ phát khi di chuyển
+
+    private float nextMoveSoundTime;
+
     [Header("Random Idle Settings")]
     public float minIdleTime = 5f;
     public float maxIdleTime = 15f;
@@ -34,6 +40,17 @@ public class AnimalAudio : MonoBehaviour
         {
             PlayRandomClip(randomIdleClips);
             ScheduleNextIdle();
+        }
+    }
+    public void PlayMovementSound(float speed)
+    {
+        if (movementClips.Length == 0) return;
+
+        // chỉ phát khi đang di chuyển
+        if (speed > 0.05f && Time.time >= nextMoveSoundTime)
+        {
+            PlayRandomClip(movementClips);
+            nextMoveSoundTime = Time.time + movementInterval;
         }
     }
 
