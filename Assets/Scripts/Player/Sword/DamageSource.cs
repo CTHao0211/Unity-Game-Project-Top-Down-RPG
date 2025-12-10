@@ -3,9 +3,16 @@ using System.Collections.Generic;
 
 public class DamageSource : MonoBehaviour
 {
-    [SerializeField] int damageAmount = 5;
-
     private HashSet<int> hitTargets = new HashSet<int>();
+    private PlayerStatus playerStatus;
+
+    private void Awake()
+    {
+        // Tìm PlayerStatus trong scene
+        playerStatus = FindObjectOfType<PlayerStatus>();
+        if (playerStatus == null)
+            Debug.LogWarning("PlayerStatus not found in scene! DamageSource will default to 1 damage.");
+    }
 
     private void OnEnable()
     {
@@ -21,6 +28,8 @@ public class DamageSource : MonoBehaviour
 
         hitTargets.Add(id);
 
-        enemy.TakeDamage(damageAmount, transform);
+        int damageToDeal = playerStatus != null ? playerStatus.damage : 1;
+        enemy.TakeDamage(damageToDeal, transform);
+
     }
 }

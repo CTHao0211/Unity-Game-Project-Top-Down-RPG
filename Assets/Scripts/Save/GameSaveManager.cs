@@ -107,8 +107,6 @@ public class GameSaveManager : MonoBehaviour
         data.player.exp = playerStatus.exp;
         data.player.currentHP = playerStatus.CurrentHP;
         data.player.maxHP = playerStatus.MaxHP;
-        data.player.armorPhysical = playerStatus.armorPhysical;
-        data.player.armorMagic = playerStatus.armorMagic;
 
         // GameTime
         data.gameTime = gameTimer != null ? gameTimer.GetTime() : 0f;
@@ -179,8 +177,6 @@ public class GameSaveManager : MonoBehaviour
         playerStatus.exp = data.player.exp;
         playerStatus.MaxHP = data.player.maxHP;
         playerStatus.CurrentHP = data.player.currentHP;
-        playerStatus.armorPhysical = data.player.armorPhysical;
-        playerStatus.armorMagic = data.player.armorMagic;
 
         // Enemies
         foreach (var e in FindObjectsOfType<EnemySaveHandle>())

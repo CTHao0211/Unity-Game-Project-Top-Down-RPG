@@ -90,7 +90,7 @@ public class PlayerHealth : MonoBehaviour
     /// <summary>
     /// Cập nhật thanh máu
     /// </summary>
-    private void UpdateHealthUI()
+    public void UpdateHealthUI()
     {
         if (fillBar != null)
             fillBar.fillAmount = (float)currentHealth / maxHealth;
@@ -98,6 +98,7 @@ public class PlayerHealth : MonoBehaviour
         if (healthText != null)
             healthText.text = $"{currentHealth}/{maxHealth}";
     }
+
 
     /// <summary>
     /// Khi Player chết

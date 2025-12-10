@@ -1,17 +1,22 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class PlayerStatus : MonoBehaviour
 {
     [Header("Level & EXP")]
     public int level = 1;
-    public int exp = 0;
+    public int exp = 9;
+    public int expToNextLevel = 10;
 
-    [Header("Armor")]
-    public int armorPhysical = 0;
-    public int armorMagic = 0;
-
-    [Header("Máu (PlayerHealth)")]
+    [Header("Stats")]
+    public int damage = 1;
+    
+    [Header("Health")]
     public PlayerHealth playerHealth;
+
+    // Event cho UI
+    public Action onExpChanged;
+    public Action onLevelUp;
 
     private void Awake()
     {
@@ -19,22 +24,51 @@ public class PlayerStatus : MonoBehaviour
             playerHealth = GetComponent<PlayerHealth>();
     }
 
-#if UNITY_EDITOR
-    // Chạy cả trong editor, mỗi lần m bấm vào object / đổi gì trong inspector
-    private void OnValidate()
+    public void AddExp(int amount)
     {
-        if (playerHealth == null)
-            playerHealth = GetComponent<PlayerHealth>();
+        exp += amount;
+        onExpChanged?.Invoke();
+        CheckLevelUp();
     }
-#endif
 
+    private void CheckLevelUp()
+    {
+        while (exp >= expToNextLevel)
+        {
+            exp -= expToNextLevel;
+            LevelUp();
+        }
+    }
+
+    private void LevelUp()
+    {
+        level++;
+        expToNextLevel = Mathf.FloorToInt(expToNextLevel * 1.2f);
+
+        // Tăng stats
+        if (playerHealth != null)
+        {
+            playerHealth.maxHealth += 5;                       // tăng max HP
+            playerHealth.currentHealth = playerHealth.maxHealth; // hồi full HP
+            playerHealth.UpdateHealthUI();                     // cập nhật thanh HP ngay lập tức
+        }
+
+
+        damage += 2;
+
+
+        Debug.Log($"Level Up! Now Level {level}");
+
+        onLevelUp?.Invoke();
+        onExpChanged?.Invoke();
+    }
     public int CurrentHP
     {
         get => playerHealth != null ? playerHealth.currentHealth : 0;
         set
         {
-            if (playerHealth == null) return;
-            playerHealth.currentHealth = Mathf.Clamp(value, 0, playerHealth.maxHealth);
+            if (playerHealth != null)
+                playerHealth.currentHealth = Mathf.Clamp(value, 0, playerHealth.maxHealth);
         }
     }
 
@@ -43,8 +77,9 @@ public class PlayerStatus : MonoBehaviour
         get => playerHealth != null ? playerHealth.maxHealth : 0;
         set
         {
-            if (playerHealth == null) return;
-            playerHealth.maxHealth = value;
+            if (playerHealth != null)
+                playerHealth.maxHealth = value;
         }
     }
+
 }
