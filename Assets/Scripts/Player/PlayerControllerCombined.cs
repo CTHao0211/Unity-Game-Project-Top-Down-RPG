@@ -60,9 +60,16 @@ public class PlayerControllerCombined : MonoBehaviour
 
     private void Update()
     {
+        if (isDead)          // ⬅️ Chết rồi thì khỏi xử lý input
+        {
+            myAnimator.SetFloat("MoveSpeed", 0f);
+            return;
+        }
+
         PlayerInput();
         AdjustAnimatorParams();
     }
+
 
 
     private void FixedUpdate()
@@ -96,6 +103,9 @@ public class PlayerControllerCombined : MonoBehaviour
     }
     private bool canMove = true; // Mặc định được di chuyển
     public bool CanMove => canMove;
+
+    private bool isDead = false;
+    public bool IsDead => isDead;
 
     private void Move()
     {
@@ -143,8 +153,12 @@ public class PlayerControllerCombined : MonoBehaviour
     }
 
 
-    private void Dash() {
-        if (!isDashing) {
+    private void Dash()
+    {
+        if (isDead) return;  // ⬅️ Chết thì không dash
+
+        if (!isDashing)
+        {
             isDashing = true;
             moveSpeed *= dashSpeed;
             myTrailRenderer.emitting = true;
@@ -152,7 +166,8 @@ public class PlayerControllerCombined : MonoBehaviour
         }
     }
 
-private IEnumerator EndDashRoutine() {
+
+    private IEnumerator EndDashRoutine() {
     float dashTime = .2f;
     float dashCooldown = 3f; // 3 GIÂY COOLDOWN
 
@@ -204,5 +219,33 @@ private IEnumerator EndDashRoutine() {
         if (sword != null)
             sword.DoneAttackingAnimEvent();
     }
+
+    public void PlayDeath()
+    {
+        if (isDead) return;   // tránh gọi nhiều lần
+
+        isDead = true;
+        canMove = false;
+
+        // Dừng hẳn player
+        if (rb != null)
+            rb.velocity = Vector2.zero;
+
+        // Tắt trail nếu đang dash
+        if (myTrailRenderer != null)
+            myTrailRenderer.emitting = false;
+
+        // Gọi animation Death
+        if (myAnimator != null)
+        {
+            myAnimator.SetFloat("MoveSpeed", 0f);
+            myAnimator.SetTrigger("Death");   // ⬅️ TRÙNG TÊN PARAM Trong Animator nhé
+        }
+
+        // (Optional) tắt collider để không bị đánh nữa
+        // Collider2D col = GetComponent<Collider2D>();
+        // if (col != null) col.enabled = false;
+    }
+
 
 }

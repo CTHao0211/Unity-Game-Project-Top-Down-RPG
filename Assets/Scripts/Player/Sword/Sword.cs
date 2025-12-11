@@ -38,13 +38,26 @@ public class Sword : MonoBehaviour
             swingHitboxes[i].SetActive(i == swingIndex);
     }
 
-    public void OnAttackButton() => PerformAttack();
+    public void OnAttackButton()
+    {
+        // Player chết thì không cho dùng nút
+        if (playerController == null || playerController.IsDead)
+            return;
+
+        PerformAttack();
+    }
+
 
     private void OnAttack(InputAction.CallbackContext ctx)
     {
+        // Nếu player đã chết -> bỏ qua luôn
+        if (playerController == null || playerController.IsDead)
+            return;
+
         if (canAttack) PerformAttack();
         else bufferedAttack = true;
     }
+
 
     private void PerformAttack()
     {
@@ -122,14 +135,18 @@ public class Sword : MonoBehaviour
         // Bật lại nút
         if (attackButtonCanvasGroup)
         {
-            attackButtonCanvasGroup.alpha = 1f;
-            attackButtonCanvasGroup.interactable = true;
-        }
-
-        if (bufferedAttack)
-        {
-            bufferedAttack = false;
-            PerformAttack();
+            if (playerController != null && playerController.IsDead)
+            {
+                // Nếu player đã chết -> để nút mờ và không bấm được
+                attackButtonCanvasGroup.alpha = 0.3f;
+                attackButtonCanvasGroup.interactable = false;
+            }
+            else
+            {
+                // Player còn sống -> cho dùng lại bình thường
+                attackButtonCanvasGroup.alpha = 1f;
+                attackButtonCanvasGroup.interactable = true;
+            }
         }
     }
 

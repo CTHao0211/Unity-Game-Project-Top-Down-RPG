@@ -23,6 +23,9 @@ public class PlayerHealth : MonoBehaviour
     [Header("Knockback Settings")]
     public float knockbackForce = 10f;
 
+    private bool isDead = false;
+
+
     private void Awake()
     {
         // Nếu chưa gán flash/knockback, lấy từ component
@@ -49,6 +52,8 @@ public class PlayerHealth : MonoBehaviour
     /// </summary>
     public void TakeDamage(int dmg, Transform source = null, Color? popupColor = null)
     {
+        if (isDead) return;
+
         currentHealth -= dmg;
         if (currentHealth < 0)
             currentHealth = 0;
@@ -71,8 +76,11 @@ public class PlayerHealth : MonoBehaviour
 
         UpdateHealthUI();
 
-        if (currentHealth <= 0)
+        if (currentHealth <= 0 && !isDead)
+        {
+            isDead = true;
             Die();
+        }
     }
 
     /// <summary>
@@ -106,9 +114,15 @@ public class PlayerHealth : MonoBehaviour
     private void Die()
     {
         Debug.Log("Player died!");
-        // Disable Player Controller
-        PlayerControllerCombined.instance.enabled = false;
 
-        // TODO: Hiển thị Game Over UI
+        // Gọi animation chết ở PlayerController
+        if (PlayerControllerCombined.instance != null)
+        {
+            PlayerControllerCombined.instance.PlayDeath();
+        }
+
+        // TODO: sau này thêm Game Over UI ở đây
+        // StartCoroutine(ShowGameOverAfterDelay());
     }
+
 }

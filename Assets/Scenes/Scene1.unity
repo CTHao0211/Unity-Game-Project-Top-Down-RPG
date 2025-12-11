@@ -23827,6 +23827,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Skeleton
       objectReference: {fileID: 0}
+    - target: {fileID: 2360831223693523362, guid: 025cd7e60a521bf47ad749b0878e6c68, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3319954627485830131, guid: 025cd7e60a521bf47ad749b0878e6c68, type: 3}
       propertyPath: knockBackTime
       value: 0.2
@@ -30982,6 +30986,10 @@ PrefabInstance:
       propertyPath: popupCanvas
       value: 
       objectReference: {fileID: 959772831}
+    - target: {fileID: 3435383829398184213, guid: b556b6516a33af148ad91512ada786f2, type: 3}
+      propertyPath: currentHealth
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4220050594572517254, guid: b556b6516a33af148ad91512ada786f2, type: 3}
       propertyPath: m_Points.m_Paths.Array.data[0].Array.size
       value: 17
