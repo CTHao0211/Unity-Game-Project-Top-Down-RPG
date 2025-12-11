@@ -4,6 +4,7 @@ using TMPro;
 
 public class PlayerHealth : MonoBehaviour
 {
+
     [Header("Health Settings")]
     public int maxHealth = 100;
     public int currentHealth;
@@ -115,14 +116,16 @@ public class PlayerHealth : MonoBehaviour
     {
         Debug.Log("Player died!");
 
-        // Gọi animation chết ở PlayerController
         if (PlayerControllerCombined.instance != null)
-        {
             PlayerControllerCombined.instance.PlayDeath();
-        }
 
-        // TODO: sau này thêm Game Over UI ở đây
-        // StartCoroutine(ShowGameOverAfterDelay());
+        
     }
+    public void OnDeathAnimationEnd()
+    {
+        if (GameManager.instance != null)
+            GameManager.instance.GameOver();
+    }
+
 
 }
