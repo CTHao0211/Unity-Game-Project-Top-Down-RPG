@@ -50,13 +50,19 @@ public class PlayerControllerCombined : MonoBehaviour
 
     private void OnEnable()
     {
+        if (playerControls == null)
+            playerControls = new PlayerControls();
+
         playerControls.Enable();
     }
 
+
     private void OnDisable()
     {
-        playerControls.Disable();
+        if (playerControls != null)
+            playerControls.Disable();
     }
+
 
     private void Update()
     {

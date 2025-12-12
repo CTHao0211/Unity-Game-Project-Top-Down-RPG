@@ -8,31 +8,36 @@ public class Knockback : MonoBehaviour
     [SerializeField] private float knockBackTime = .2f;
 
     private Rigidbody2D rb;
+    private PlayerControllerCombined controller;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        controller = GetComponent<PlayerControllerCombined>();
     }
 
     public void GetKnockedBack(Transform damageSource, float knockBackThrust)
     {
         if (rb == null) return;
 
+        // nếu đang bị knockback, có thể reset thời gian (tùy muốn)
         gettingKnockedBack = true;
 
-        // reset velocity trước khi đẩy cho knockback rõ hơn
+        // khóa điều khiển nếu có
+        if (controller != null)
+            controller.enabled = false;
+
+        // reset velocity trước khi đẩy
         rb.velocity = Vector2.zero;
 
         Vector2 difference = new Vector2(
             transform.position.x - damageSource.position.x,
             transform.position.y - damageSource.position.y
-        ).normalized * knockBackThrust * rb.mass;
+        ).normalized * knockBackThrust;
 
         rb.AddForce(difference, ForceMode2D.Impulse);
 
-        // giữ Z = 0
-        transform.position = new Vector3(transform.position.x, transform.position.y, 0);
-
+        // bắt đầu coroutine tắt knockback
         StartCoroutine(KnockRoutine());
     }
 
@@ -45,6 +50,7 @@ public class Knockback : MonoBehaviour
 
         gettingKnockedBack = false;
 
-        transform.position = new Vector3(transform.position.x, transform.position.y, 0);
+        if (controller != null)
+            controller.enabled = true;
     }
 }

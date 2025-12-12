@@ -9,11 +9,8 @@ public class Flash : MonoBehaviour
     [SerializeField] private float flashDuration = 0.12f;
 
     private SpriteRenderer sr;
-    private MaterialPropertyBlock mpb;
-    private static readonly int ColorProp = Shader.PropertyToID("_Color");
-
-    private Coroutine runningFlash;
     private Color originalColor;
+    private Coroutine runningFlash;
 
     private void Awake()
     {
@@ -21,15 +18,9 @@ public class Flash : MonoBehaviour
         if (sr == null)
             sr = GetComponentInChildren<SpriteRenderer>();
 
-        mpb = new MaterialPropertyBlock();
-
-        // dùng color thực tế của SpriteRenderer làm màu gốc
         originalColor = sr.color;
     }
 
-    /// <summary>
-    /// Hàm public để EnemyHealth gọi flash
-    /// </summary>
     public void StartFlash()
     {
         if (runningFlash != null)
@@ -40,17 +31,13 @@ public class Flash : MonoBehaviour
 
     private IEnumerator FlashRoutine()
     {
-        // bật flash
-        sr.GetPropertyBlock(mpb);
-        mpb.SetColor(ColorProp, flashColor);
-        sr.SetPropertyBlock(mpb);
+        // đổi sang màu trắng (flash)
+        sr.color = flashColor;
 
         yield return new WaitForSeconds(flashDuration);
 
         // trả về màu gốc
-        sr.GetPropertyBlock(mpb);
-        mpb.SetColor(ColorProp, originalColor);
-        sr.SetPropertyBlock(mpb);
+        sr.color = originalColor;
 
         runningFlash = null;
     }

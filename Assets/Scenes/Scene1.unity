@@ -32435,6 +32435,10 @@ PrefabInstance:
       propertyPath: m_Points.m_Paths.Array.data[0].Array.data[14].y
       value: 0.05945713
       objectReference: {fileID: 0}
+    - target: {fileID: 5204755313857970106, guid: b556b6516a33af148ad91512ada786f2, type: 3}
+      propertyPath: flashDuration
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 5329842150341806337, guid: b556b6516a33af148ad91512ada786f2, type: 3}
       propertyPath: m_Layer
       value: 0
