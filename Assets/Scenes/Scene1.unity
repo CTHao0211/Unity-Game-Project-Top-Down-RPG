@@ -32312,6 +32312,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1076470898}
     - target: {fileID: 3435383829398184213, guid: b556b6516a33af148ad91512ada786f2, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 8789166136751333287}
+    - target: {fileID: 3435383829398184213, guid: b556b6516a33af148ad91512ada786f2, type: 3}
       propertyPath: maxHealth
       value: 10
       objectReference: {fileID: 0}
@@ -32755,6 +32759,10 @@ PrefabInstance:
       propertyPath: m_RenderingLayerMask
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8646794636928819374, guid: b556b6516a33af148ad91512ada786f2, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: b4815810b62889949861bd38712f6d06, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -33385,6 +33393,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58fd9ee23fac1824f850174bacb44405, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!95 &8789166136751333287 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 2262060325109254425, guid: b556b6516a33af148ad91512ada786f2, type: 3}
+  m_PrefabInstance: {fileID: 774407634536615931}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

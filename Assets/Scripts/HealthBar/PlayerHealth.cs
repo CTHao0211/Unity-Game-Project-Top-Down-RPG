@@ -78,10 +78,11 @@ public class PlayerHealth : MonoBehaviour
             currentHealth = 0;
 
         // Flash khi bị damage
-        //flash?.StartFlash();
+        flash.FlashWhite();
+
 
         //// Animator trigger (nếu muốn)
-        animator.SetTrigger("Hit");
+        //animator.SetTrigger("Hit");
 
 
         // Knockback nếu có nguồn damage

@@ -28,12 +28,19 @@ public class PlayerControllerCombined : MonoBehaviour
     private void Awake()
     {
         instance = this;
+
         rb = GetComponent<Rigidbody2D>();
-        myAnimator = GetComponent<Animator>();
-        mySpriteRender = GetComponent<SpriteRenderer>();
+
+        // Tìm animator đúng cách
+        myAnimator = GetComponentInParent<Animator>();
+        if (myAnimator == null)
+            Debug.LogError("Animator NOT FOUND for PlayerControllerCombined!");
+
+        mySpriteRender = GetComponentInParent<SpriteRenderer>();
 
         playerControls = new PlayerControls();
     }
+
     private void Start() {
     playerControls.Dash.Dash.performed += ctx => {
         Sword sword = GetComponentInChildren<Sword>();

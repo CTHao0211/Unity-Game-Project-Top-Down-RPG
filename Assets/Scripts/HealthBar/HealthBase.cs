@@ -74,7 +74,7 @@ public abstract class HealthBase : MonoBehaviour
         AnimalAudio audio = GetComponent<AnimalAudio>();
         if(audio != null)
         audio.PlayHitSound();
-        flash?.StartFlash();
+        flash.FlashWhite();
         if (source != null)
             knockback?.GetKnockedBack(source, knockbackForce);
 

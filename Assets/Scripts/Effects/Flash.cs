@@ -1,44 +1,26 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
 
-[RequireComponent(typeof(SpriteRenderer))]
 public class Flash : MonoBehaviour
 {
-    [Header("Flash Settings")]
-    [SerializeField] private Color flashColor = Color.white;
-    [SerializeField] private float flashDuration = 0.12f;
-
-    private SpriteRenderer sr;
-    private Color originalColor;
-    private Coroutine runningFlash;
+    private Material mat;
+    public float flashDuration = 0.1f;
 
     private void Awake()
     {
-        sr = GetComponent<SpriteRenderer>();
-        if (sr == null)
-            sr = GetComponentInChildren<SpriteRenderer>();
-
-        originalColor = sr.color;
+        mat = GetComponent<SpriteRenderer>().material;
     }
 
-    public void StartFlash()
+    public void FlashWhite()
     {
-        if (runningFlash != null)
-            StopCoroutine(runningFlash);
-
-        runningFlash = StartCoroutine(FlashRoutine());
+        StopAllCoroutines();
+        StartCoroutine(FlashRoutine());
     }
 
     private IEnumerator FlashRoutine()
     {
-        // đổi sang màu trắng (flash)
-        sr.color = flashColor;
-
+        mat.SetFloat("_FlashAmount", 1f);
         yield return new WaitForSeconds(flashDuration);
-
-        // trả về màu gốc
-        sr.color = originalColor;
-
-        runningFlash = null;
+        mat.SetFloat("_FlashAmount", 0f);
     }
 }
