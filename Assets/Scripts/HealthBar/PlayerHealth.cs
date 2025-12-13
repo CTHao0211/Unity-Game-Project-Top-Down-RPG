@@ -61,10 +61,18 @@ public class PlayerHealth : MonoBehaviour
     /// <summary>
     /// Nhận damage
     /// </summary>
-    public void TakeDamage(int dmg, Transform source = null, Color? popupColor = null)
+    public void TakeDamage(
+    int dmg,
+    Transform source = null,
+    Color? popupColor = null,
+    bool canKnockback = true,
+    bool ignoreInvuln = false
+)
+
     {
         if (isDead) return;
-        if (isInvulnerable) return;
+        if (isInvulnerable && !ignoreInvuln) return;
+
 
         // set invulnerable window nếu cần
         if (useInvulnerability)
@@ -86,8 +94,9 @@ public class PlayerHealth : MonoBehaviour
 
 
         // Knockback nếu có nguồn damage
-        if (source != null)
+        if (canKnockback && source != null)
             knockback?.GetKnockedBack(source, knockbackForce);
+
 
         // Damage Popup
         if (damagePopupPrefab != null && popupCanvas != null)
