@@ -53,6 +53,7 @@ GameObject:
   - component: {fileID: 5834145470437002003}
   - component: {fileID: 3908368097894583820}
   - component: {fileID: 5255379810621704037}
+  - component: {fileID: 3878218438742381147}
   m_Layer: 0
   m_Name: Slime_Green
   m_TagString: Untagged
@@ -99,6 +100,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: d670c6d19f0f4f34b8a8134fa18423d8, type: 3}
   - {fileID: 8300000, guid: d322d8fd349756b49ba1934fb9a7ae67, type: 3}
   - {fileID: 8300000, guid: 0f9cec7f9164ab4419e144614f714e7a, type: 3}
+  movementClips: []
+  movementInterval: 0.4
   minIdleTime: 5
   maxIdleTime: 15
 --- !u!114 &8041755811313839662
@@ -125,8 +128,10 @@ MonoBehaviour:
   knockbackForce: 12
   damagePopupPrefab: {fileID: 3142056955576275207, guid: 94aec01a03ffa6b47891eafc95bba898, type: 3}
   popupCanvas: {fileID: 5467803369615357300}
+  loadedFromSave: 0
   deathVFXPrefab: {fileID: 1955669051570749984, guid: 6f57a7eec9c19e64a9e48031d84c4beb, type: 3}
   vfxLifetime: 1.5
+  expReward: 2
 --- !u!212 &2807371644782044378
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -300,7 +305,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6762bbaaeca01c94d9307f1ca6e6474e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  knockBackTime: 0.1
+  knockBackTime: 0.2
 --- !u!114 &-5600953503444250670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -423,7 +428,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06a84d731f36cb54bb03baab6ff365a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skillDamage: 3
+  skillDamage: 1
   attackRange: 1.1
   attackCooldown: 1.5
   attackPoint: {fileID: 8874968049698181292}
@@ -442,12 +447,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9690a56699f9e041a7fb9e390afd249, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 174169287281564074, guid: b556b6516a33af148ad91512ada786f2, type: 3}
+  target: {fileID: 0}
   moveSpeed: 2
   stopDistance: 0.8
   aggroRange: 5
   loseRange: 7
   returnSpeed: 2
+--- !u!114 &3878218438742381147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2928494696422928870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 150d38054f771a349b6e26c7f9b14780, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyId: 10876a69-ed8d-4ef9-b373-a3ddb0329524
+  health: {fileID: 8041755811313839662}
 --- !u!1001 &6515177789464994152
 PrefabInstance:
   m_ObjectHideFlags: 0

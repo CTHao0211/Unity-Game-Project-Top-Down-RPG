@@ -9,14 +9,10 @@ public class AnimalSaveHandle : MonoBehaviour
     [Header("Health (HealthBase) - nếu có")]
     public HealthBase health;
 
-    private SpriteRenderer spriteRenderer;
-
     private void Awake()
     {
         if (health == null)
             health = GetComponent<HealthBase>();
-
-        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void OnValidate()
@@ -43,20 +39,33 @@ public class AnimalSaveHandle : MonoBehaviour
         }
     }
 
-    public bool HasHealth => health != null;
+    public bool IsDead
+    {
+        get
+        {
+            if (!gameObject.activeSelf) return true;
+            if (health == null) return false;
+            return health.currentHealth <= 0;
+        }
+    }
+
 
     public Vector3 GetPosition() => transform.position;
 
-    public bool GetFlipX() => spriteRenderer != null && spriteRenderer.flipX;
-
-    public void ApplyState(float x, float y, bool flipX, int? hp = null)
+    /// <summary>
+    /// Áp dụng state khi load game
+    /// </summary>
+    public void ApplyState(float x, float y, int hp, bool isDead)
     {
+        if (isDead || hp <= 0)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+
         transform.position = new Vector3(x, y, transform.position.z);
 
-        if (spriteRenderer != null)
-            spriteRenderer.flipX = flipX;
-
-        if (hp.HasValue && health != null)
-            CurrentHP = hp.Value;
+        if (health != null)
+            health.ApplyLoadedHP(hp); 
     }
 }

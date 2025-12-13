@@ -19,8 +19,13 @@ public class EnemyPathfinding : MonoBehaviour
     private void FixedUpdate()
     {
         if (knockback.gettingKnockedBack) return;
+
         rb.MovePosition(rb.position + moveDir * (moveSpeed * Time.fixedDeltaTime));
+
+        float speed = moveDir.magnitude;
+        GetComponent<AnimalAudio>()?.PlayMovementSound(speed);
     }
+
 
     public void MoveTo(Vector2 targetPosition)
     {

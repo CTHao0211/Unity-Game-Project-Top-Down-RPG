@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -13,21 +14,33 @@ public class PlayerHealth : MonoBehaviour
     public TMP_Text healthText; // Gán TMP_Text từ Canvas
 
     [Header("Effects")]
-    public Flash flash;         // Gán Flash component (SpriteRenderer)
-    public Knockback knockback; // Gán Knockback component nếu muốn
+    public Flash flash;         // Flash component (đổi màu)
+    public Knockback knockback; // Knockback component
+
+    [Header("Animation")]
+    public Animator animator;   // Animator nếu muốn trigger "Hit"
 
     [Header("Damage Popup")]
     public DamageText damagePopupPrefab; // Gán prefab DamageText
-    public Transform popupCanvas;        // Canvas Scene dùng hiển thị popup
+    public Transform popupCanvas;        // Canvas dùng hiển thị popup
 
     [Header("Knockback Settings")]
     public float knockbackForce = 10f;
 
+    [Header("Invulnerability")]
+    public bool useInvulnerability = true;
+    public float invulnTime = 0.3f;
+    private bool isInvulnerable = false;
+
+    private bool isDead = false;
     private void Awake()
     {
-        // Nếu chưa gán flash/knockback, lấy từ component
         flash = flash ?? GetComponent<Flash>();
         knockback = knockback ?? GetComponent<Knockback>();
+
+        // TÌM Animator Ở TRÊN CHA (PlayerControllerCombined hoặc Player)
+        if (animator == null)
+            animator = GetComponentInParent<Animator>();
 
         // Nếu chưa gán popupCanvas, tìm Canvas trong scene
         if (popupCanvas == null)
@@ -37,24 +50,40 @@ public class PlayerHealth : MonoBehaviour
                 popupCanvas = c.transform;
         }
     }
+
+
     private void Start()
     {
-        currentHealth = maxHealth; // Thêm dòng này
+        currentHealth = maxHealth;
         UpdateHealthUI();
     }
-
 
     /// <summary>
     /// Nhận damage
     /// </summary>
     public void TakeDamage(int dmg, Transform source = null, Color? popupColor = null)
     {
+        if (isDead) return;
+        if (isInvulnerable) return;
+
+        // set invulnerable window nếu cần
+        if (useInvulnerability)
+        {
+            isInvulnerable = true;
+            StartCoroutine(InvulnRoutine());
+        }
+
         currentHealth -= dmg;
         if (currentHealth < 0)
             currentHealth = 0;
 
         // Flash khi bị damage
-        flash?.StartFlash();
+        flash.FlashWhite();
+
+
+        //// Animator trigger (nếu muốn)
+        //animator.SetTrigger("Hit");
+
 
         // Knockback nếu có nguồn damage
         if (source != null)
@@ -65,14 +94,23 @@ public class PlayerHealth : MonoBehaviour
         {
             DamageText dt = Instantiate(damagePopupPrefab, popupCanvas);
             dt.transform.localScale = Vector3.one;
-            dt.transform.localPosition = Vector3.zero; // sẽ đặt lại position nếu muốn
+            dt.transform.localPosition = Vector3.zero;
             dt.Setup(dmg, popupColor);
         }
 
         UpdateHealthUI();
 
-        if (currentHealth <= 0)
+        if (currentHealth <= 0 && !isDead)
+        {
+            isDead = true;
             Die();
+        }
+    }
+
+    private IEnumerator InvulnRoutine()
+    {
+        yield return new WaitForSeconds(invulnTime);
+        isInvulnerable = false;
     }
 
     /// <summary>
@@ -90,7 +128,7 @@ public class PlayerHealth : MonoBehaviour
     /// <summary>
     /// Cập nhật thanh máu
     /// </summary>
-    private void UpdateHealthUI()
+    public void UpdateHealthUI()
     {
         if (fillBar != null)
             fillBar.fillAmount = (float)currentHealth / maxHealth;
@@ -105,9 +143,14 @@ public class PlayerHealth : MonoBehaviour
     private void Die()
     {
         Debug.Log("Player died!");
-        // Disable Player Controller
-        PlayerControllerCombined.instance.enabled = false;
 
-        // TODO: Hiển thị Game Over UI
+        if (PlayerControllerCombined.instance != null)
+            PlayerControllerCombined.instance.PlayDeath();
+    }
+
+    public void OnDeathAnimationEnd()
+    {
+        if (GameManager.instance != null)
+            GameManager.instance.GameOver();
     }
 }

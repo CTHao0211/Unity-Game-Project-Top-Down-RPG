@@ -20,6 +20,7 @@ public class SlimeChase : MonoBehaviour
     private Animator animator;
     private Vector2 spawnPosition;
     private bool isChasing = false;
+    private bool playerDead = false;
 
     private void Awake()
     {
@@ -45,6 +46,19 @@ public class SlimeChase : MonoBehaviour
     private void FixedUpdate()
     {
         if (target == null || rb == null) return;
+
+        // 🔴 Nếu player đã chết → ngừng chase, quay về spawn
+        if (!playerDead && PlayerControllerCombined.instance != null && PlayerControllerCombined.instance.IsDead)
+        {
+            playerDead = true;
+            isChasing = false;
+        }
+
+        if (playerDead)
+        {
+            ReturnToSpawn();
+            return;
+        }
 
         // 🔴 đang bị knockback → không điều khiển di chuyển
         if (knockback != null && knockback.gettingKnockedBack)
@@ -72,6 +86,7 @@ public class SlimeChase : MonoBehaviour
         else
             ReturnToSpawn();
     }
+
 
     private void ChaseTarget(float distToPlayer)
     {

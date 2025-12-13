@@ -25,10 +25,11 @@ public abstract class HealthBase : MonoBehaviour
     [Header("Damage Popup")]
     [SerializeField] protected DamageText damagePopupPrefab;
     [SerializeField] protected Transform popupCanvas;
-
+    public bool loadedFromSave = false;
     protected virtual void Awake()
     {
-        currentHealth = maxHealth;
+        if (!loadedFromSave)
+            currentHealth = maxHealth;
 
         if (healthBarCanvas == null)
             healthBarCanvas = GetComponentInChildren<Canvas>(true);
@@ -55,6 +56,12 @@ public abstract class HealthBase : MonoBehaviour
 
         UpdateHealthBar();
     }
+    public void ApplyLoadedHP(int hp)
+    {
+        loadedFromSave = true;
+        currentHealth = Mathf.Clamp(hp, 0, maxHealth);
+        UpdateHealthBar();
+    }
 
     /// <summary>
     /// Gây damage
@@ -67,7 +74,7 @@ public abstract class HealthBase : MonoBehaviour
         AnimalAudio audio = GetComponent<AnimalAudio>();
         if(audio != null)
         audio.PlayHitSound();
-        flash?.StartFlash();
+        flash.FlashWhite();
         if (source != null)
             knockback?.GetKnockedBack(source, knockbackForce);
 

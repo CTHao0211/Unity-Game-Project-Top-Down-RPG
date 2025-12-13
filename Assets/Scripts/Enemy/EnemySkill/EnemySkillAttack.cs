@@ -56,19 +56,18 @@ public class EnemySkillAttack : MonoBehaviour
         Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.position, attackRange);
 
         foreach (Collider2D hit in hits)
+        if (hit.CompareTag("Player"))
         {
-            // Chỉ xử lý nếu là Player
-            if (hit.CompareTag("Player"))
-            {
-                Debug.Log("[Slime] Đánh trúng Player!");
+            Debug.Log("[Slime] Đánh trúng Player!");
 
-                HealthBase hp = hit.GetComponent<HealthBase>(); // hoặc PlayerHealth nếu bạn tách riêng
-                if (hp != null)
-                {
-                    hp.TakeDamage(skillDamage, transform, Color.red);
-                }
+            PlayerHealth ph = hit.GetComponent<PlayerHealth>(); // khai báo trước
+            if (ph != null)
+            {
+                ph.TakeDamage(skillDamage, transform, Color.red); // dùng sau khi khai báo
             }
         }
+
+
     }
 
 
