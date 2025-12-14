@@ -11,6 +11,8 @@ public class PlayerSaveData
     public int currentHP;
     public int maxHP;
     public int expToNextLevel;
+
+    public int damage;
 }
 
 [Serializable]

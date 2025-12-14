@@ -10,6 +10,7 @@ public class GameSaveManager : MonoBehaviour
     [Header("Player References")]
     public PlayerControllerCombined playerController;
     public PlayerStatus playerStatus;
+    public PlayerHealth playerHealth;
 
     [Header("Game Timer")]
     public GameTimer gameTimer; // thêm này nếu có
@@ -65,12 +66,19 @@ public class GameSaveManager : MonoBehaviour
         if (playerController == null)
             playerController = FindObjectOfType<PlayerControllerCombined>();
 
-        if (playerController != null && playerStatus == null)
-            playerStatus = playerController.GetComponent<PlayerStatus>();
+        if (playerController != null)
+        {
+            if (playerStatus == null)
+                playerStatus = playerController.GetComponent<PlayerStatus>();
+
+            if (playerHealth == null)
+                playerHealth = playerController.GetComponent<PlayerHealth>(); // ✅
+        }
 
         if (gameTimer == null)
             gameTimer = FindObjectOfType<GameTimer>();
     }
+
 
     // AUTO SAVE ====================================
     private IEnumerator AutoSaveRoutine()
@@ -113,7 +121,9 @@ public class GameSaveManager : MonoBehaviour
             exp = playerStatus.exp,
             currentHP = playerStatus.CurrentHP,
             maxHP = playerStatus.MaxHP,
-            expToNextLevel = playerStatus.expToNextLevel
+            expToNextLevel = playerStatus.expToNextLevel,
+            damage = playerStatus.damage
+            
         };
 
         // GameTime
@@ -176,13 +186,21 @@ private IEnumerator LoadSceneAndApply(SaveData data)
     FindPlayerRefs();
 
     // Áp dụng dữ liệu player
-    playerController.transform.position = new Vector3(data.player.posX, data.player.posY, 0);
+    // Vị trí
+    playerController.transform.position = new Vector2(data.player.posX, data.player.posY);
+    // Player stats
     playerStatus.level = data.player.level;
     playerStatus.exp = data.player.exp;
-    playerStatus.CurrentHP = data.player.currentHP;
-    playerStatus.MaxHP = data.player.maxHP;
     playerStatus.expToNextLevel = data.player.expToNextLevel;
+    playerStatus.damage = data.player.damage;
+
+    // Player HP (QUAN TRỌNG THỨ TỰ)
+    playerHealth.maxHealth = data.player.maxHP;
+    playerHealth.ApplyLoadedHP(data.player.currentHP); // ✅
+
+    // UI
     playerStatus.ForceRefreshUI();
+
 
     // Áp dụng enemy
     foreach (var e in FindObjectsOfType<EnemySaveHandle>())
