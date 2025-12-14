@@ -11,12 +11,13 @@ public class GameSaveManager : MonoBehaviour
     public PlayerControllerCombined playerController;
     public PlayerStatus playerStatus;
 
-    [Header("Game Timer")]
-    public GameTimer gameTimer;
-
     [Header("Auto Save")]
-    public float autoSaveInterval = 600f;
-    private int currentSlot = -1;
+    public float autoSaveInterval = 600f; // 10 phút
+    public bool enableAutoSave = true;
+
+    [Header("Cloud")]
+    public string cloudBaseUrl = "https://cloud-save-server.onrender.com/api";
+    public bool autoLoadOnStart = false; // muốn “vào game là load luôn” thì bật
 
     private void Awake()
     {
@@ -27,13 +28,24 @@ public class GameSaveManager : MonoBehaviour
         }
 
         Instance = this;
+
+        // QUAN TRỌNG: object này phải là ROOT trong Hierarchy
         DontDestroyOnLoad(gameObject);
     }
 
 
     private void Start()
     {
-        Debug.Log("Persistent Path = " + Application.persistentDataPath);
+        // set url cho CloudSaveApi
+        CloudSaveApi.BASE_URL = cloudBaseUrl;
+
+        // đảm bảo có identity
+        PlayerIdentity.GetOrCreatePlayerId();
+        if (string.IsNullOrEmpty(PlayerIdentity.GetPlayerName()))
+            PlayerIdentity.SetPlayerName("Guest");
+
+        Debug.Log("[GameSaveManager] playerId=" + PlayerIdentity.GetOrCreatePlayerId()
+            + " name=" + PlayerIdentity.GetPlayerName());
 
         FindPlayerRefs();
         StartCoroutine(AutoSaveRoutine());
@@ -61,12 +73,11 @@ public class GameSaveManager : MonoBehaviour
 
         if (playerController != null && playerStatus == null)
             playerStatus = playerController.GetComponent<PlayerStatus>();
-
-        if (gameTimer == null)
-            gameTimer = FindObjectOfType<GameTimer>();
     }
 
-    // AUTO SAVE ====================================
+    // ============================
+    // AUTO SAVE LOOP
+    // ============================
     private IEnumerator AutoSaveRoutine()
     {
         while (true)
@@ -203,6 +214,43 @@ private IEnumerator LoadSceneAndApply(SaveData data)
     }
 
     Debug.Log($"Slot {currentSlot} loaded thành công!");
+}
+// ============================
+// SAVE (cloud metadata only)
+// ============================
+public void Save()
+{
+    // Chỉ gửi metadata (name + saveTime)
+    SaveData data = new SaveData();
+    data.playerName = PlayerIdentity.GetPlayerName();
+    data.saveTime = System.DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+
+    string playerId = PlayerIdentity.GetOrCreatePlayerId();
+
+    Debug.Log("[CloudSave] Sending metadata: " + JsonUtility.ToJson(data));
+
+    StartCoroutine(CloudSaveApi.SaveAll(playerId, data.playerName, data));
+}
+
+// ============================
+// LOAD (cloud metadata only)
+// ============================
+public void Load()
+{
+    string playerId = PlayerIdentity.GetOrCreatePlayerId();
+    StartCoroutine(CloudSaveApi.LoadAll(playerId, OnCloudMetaLoaded));
+}
+
+private void OnCloudMetaLoaded(SaveData data)
+{
+    if (data == null)
+    {
+        Debug.LogWarning("[GameSaveManager] No cloud metadata found (or load failed).");
+        return;
+    }
+
+    Debug.Log($"[CloudLoad] Metadata: Name={data.playerName}, Time={data.saveTime}");
+    // Nếu muốn, update UI danh sách save cloud ở đây
 }
 
 }
