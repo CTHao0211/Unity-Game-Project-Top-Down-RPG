@@ -10,14 +10,21 @@ public class GameSaveManager : MonoBehaviour
     [Header("Player References")]
     public PlayerControllerCombined playerController;
     public PlayerStatus playerStatus;
+    public PlayerHealth playerHealth;
 
     [Header("Game Timer")]
-    public GameTimer gameTimer;
+    public GameTimer gameTimer; // thêm này nếu có
 
     [Header("Auto Save")]
     public float autoSaveInterval = 600f;
-    private int currentSlot = -1;
+    public bool enableAutoSave = true;
 
+    [Header("Cloud")]
+    public string cloudBaseUrl = "https://cloud-save-server.onrender.com/api";
+    public bool autoLoadOnStart = false;
+
+    private int currentSlot = -1; // thêm biến slot hiện tại
+    
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -59,12 +66,19 @@ public class GameSaveManager : MonoBehaviour
         if (playerController == null)
             playerController = FindObjectOfType<PlayerControllerCombined>();
 
-        if (playerController != null && playerStatus == null)
-            playerStatus = playerController.GetComponent<PlayerStatus>();
+        if (playerController != null)
+        {
+            if (playerStatus == null)
+                playerStatus = playerController.GetComponent<PlayerStatus>();
+
+            if (playerHealth == null)
+                playerHealth = playerController.GetComponent<PlayerHealth>(); // ✅
+        }
 
         if (gameTimer == null)
             gameTimer = FindObjectOfType<GameTimer>();
     }
+
 
     // AUTO SAVE ====================================
     private IEnumerator AutoSaveRoutine()
@@ -107,7 +121,9 @@ public class GameSaveManager : MonoBehaviour
             exp = playerStatus.exp,
             currentHP = playerStatus.CurrentHP,
             maxHP = playerStatus.MaxHP,
-            expToNextLevel = playerStatus.expToNextLevel
+            expToNextLevel = playerStatus.expToNextLevel,
+            damage = playerStatus.damage
+            
         };
 
         // GameTime
@@ -170,13 +186,21 @@ private IEnumerator LoadSceneAndApply(SaveData data)
     FindPlayerRefs();
 
     // Áp dụng dữ liệu player
-    playerController.transform.position = new Vector3(data.player.posX, data.player.posY, 0);
+    // Vị trí
+    playerController.transform.position = new Vector2(data.player.posX, data.player.posY);
+    // Player stats
     playerStatus.level = data.player.level;
     playerStatus.exp = data.player.exp;
-    playerStatus.CurrentHP = data.player.currentHP;
-    playerStatus.MaxHP = data.player.maxHP;
     playerStatus.expToNextLevel = data.player.expToNextLevel;
+    playerStatus.damage = data.player.damage;
+
+    // Player HP (QUAN TRỌNG THỨ TỰ)
+    playerHealth.maxHealth = data.player.maxHP;
+    playerHealth.ApplyLoadedHP(data.player.currentHP); // ✅
+
+    // UI
     playerStatus.ForceRefreshUI();
+
 
     // Áp dụng enemy
     foreach (var e in FindObjectsOfType<EnemySaveHandle>())
@@ -204,5 +228,49 @@ private IEnumerator LoadSceneAndApply(SaveData data)
 
     Debug.Log($"Slot {currentSlot} loaded thành công!");
 }
+// ============================
+// SAVE (cloud metadata only)
+// ============================
+    public void SaveCompletionTime(float completionTime)
+    {
+        SaveData data = new SaveData();
+        data.playerName = PlayerIdentity.GetPlayerName();
+        data.saveTime = System.DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        data.completionTime = completionTime;
+
+        string playerId = PlayerIdentity.GetOrCreatePlayerId();
+
+        Debug.Log("[CloudSave] Sending completion time: " + JsonUtility.ToJson(data));
+        StartCoroutine(CloudSaveApi.SaveAll(playerId, data.playerName, data));
+    }
+
+
+// ============================
+// LOAD (cloud metadata only)
+// ============================
+    SaveData[] leaderboard;
+    public void LoadLeaderboard()
+    {
+        string playerId = PlayerIdentity.GetOrCreatePlayerId();
+        StartCoroutine(CloudSaveApi.LoadAll(playerId, OnLeaderboardLoaded));
+    }
+
+    private void OnLeaderboardLoaded(SaveData[] dataArray)
+    {
+        if (dataArray == null || dataArray.Length == 0)
+        {
+            Debug.LogWarning("[GameSaveManager] No cloud leaderboard found.");
+            return;
+        }
+
+        foreach (var entry in dataArray)
+        {
+            Debug.Log($"Leaderboard entry: {entry.playerName} - {entry.completionTime}s");
+        }
+
+        // Update UI leaderboard ở đây
+    }
+
+
 
 }

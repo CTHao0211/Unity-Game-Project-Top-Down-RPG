@@ -31,6 +31,7 @@ public class PlayerHealth : MonoBehaviour
     public bool useInvulnerability = true;
     public float invulnTime = 0.3f;
     private bool isInvulnerable = false;
+    private bool loadedFromSave = false;
 
     private bool isDead = false;
     private void Awake()
@@ -54,9 +55,12 @@ public class PlayerHealth : MonoBehaviour
 
     private void Start()
     {
-        currentHealth = maxHealth;
+        if (!loadedFromSave)
+            currentHealth = maxHealth;
+
         UpdateHealthUI();
     }
+
 
     /// <summary>
     /// Nhận damage
@@ -157,9 +161,31 @@ public class PlayerHealth : MonoBehaviour
             PlayerControllerCombined.instance.PlayDeath();
     }
 
+    public void ApplyLoadedHP(int hp)
+    {
+        loadedFromSave = true;
+        currentHealth = Mathf.Clamp(hp, 0, maxHealth);
+        UpdateHealthUI();
+    }
+
+
+
     public void OnDeathAnimationEnd()
     {
         if (GameManager.instance != null)
             GameManager.instance.GameOver();
     }
+    
+    public void ApplyLoadedHPDelayed(int hp)
+    {
+        StartCoroutine(ApplyNextFrame(hp));
+    }
+
+
+    private IEnumerator ApplyNextFrame(int hp)
+    {
+        yield return null;
+        ApplyLoadedHP(hp);
+    }
+
 }

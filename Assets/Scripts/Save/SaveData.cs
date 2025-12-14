@@ -11,6 +11,8 @@ public class PlayerSaveData
     public int currentHP;
     public int maxHP;
     public int expToNextLevel;
+
+    public int damage;
 }
 
 [Serializable]
@@ -48,6 +50,8 @@ public class SaveData
     // 👇 METADATA CHO SAVE UI
     public string playerName;
     public string saveTime; // DateTime.Now.ToString()
+    public float completionTime; // thời gian hoàn thành game
 }
+
 
 
