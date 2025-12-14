@@ -1,65 +1,71 @@
-﻿using UnityEngine;
+﻿﻿using UnityEngine;
 using System;
 
 public class AnimalSaveHandle : MonoBehaviour
 {
-    [Header("Stable ID (không đổi)")]
+    [Header("ID tự sinh (đừng sửa tay)")]
     public string animalId;
 
-    [Header("Optional")]
-    [SerializeField] private SpriteRenderer spriteRenderer;
+    [Header("Health (HealthBase) - nếu có")]
+    public HealthBase health;
 
-    private HealthBase health;
+    private void Awake()
+    {
+        if (health == null)
+            health = GetComponent<HealthBase>();
+    }
 
-    public bool HasHealth => health != null;
+    private void OnValidate()
+    {
+        if (string.IsNullOrEmpty(animalId))
+        {
+            animalId = Guid.NewGuid().ToString();
+#if UNITY_EDITOR
+            UnityEditor.EditorUtility.SetDirty(this);
+#endif
+        }
+
+        if (health == null)
+            health = GetComponent<HealthBase>();
+    }
 
     public int CurrentHP
     {
         get => health != null ? health.currentHealth : 0;
         set
         {
-            if (health != null) health.currentHealth = Mathf.Max(0, value);
+            if (health == null) return;
+            health.currentHealth = Mathf.Clamp(value, 0, health.maxHealth);
         }
     }
 
-    private void Awake()
+    public bool IsDead
     {
-        if (spriteRenderer == null)
-            spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
-
-        health = GetComponent<HealthBase>();
+        get
+        {
+            if (!gameObject.activeSelf) return true;
+            if (health == null) return false;
+            return health.currentHealth <= 0;
+        }
     }
 
-    public bool GetFlipX()
-    {
-        return spriteRenderer != null && spriteRenderer.flipX;
-    }
 
-    public void ApplyState(float x, float y, bool flipX, int? hp)
+    public Vector3 GetPosition() => transform.position;
+
+    /// <summary>
+    /// Áp dụng state khi load game
+    /// </summary>
+    public void ApplyState(float x, float y, int hp, bool isDead)
     {
+        if (isDead || hp <= 0)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+
         transform.position = new Vector3(x, y, transform.position.z);
 
-        if (spriteRenderer != null)
-            spriteRenderer.flipX = flipX;
-
-        if (health != null && hp.HasValue)
-            health.currentHealth = Mathf.Max(0, hp.Value);
+        if (health != null)
+            health.ApplyLoadedHP(hp); 
     }
-
-#if UNITY_EDITOR
-    private void OnValidate()
-    {
-        if (string.IsNullOrEmpty(animalId))
-            animalId = Guid.NewGuid().ToString("N");
-
-        if (spriteRenderer == null)
-            spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
-    }
-
-    [ContextMenu("Regenerate ID")]
-    private void RegenerateId()
-    {
-        animalId = Guid.NewGuid().ToString("N");
-    }
-#endif
 }

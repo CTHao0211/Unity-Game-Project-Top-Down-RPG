@@ -53,7 +53,7 @@ public static class CloudSaveApi
         }
     }
 
-    public static IEnumerator LoadAll(string playerId, Action<SaveData> onLoaded)
+    public static IEnumerator LoadAll(string playerId, Action<SaveData[]> onLoaded)
     {
         var req = UnityWebRequest.Get(BASE_URL + "/load-all?playerId=" + playerId);
         yield return req.SendWebRequest();
@@ -61,7 +61,6 @@ public static class CloudSaveApi
         if (req.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError("[CloudSaveApi] Load error: " + req.error);
-            Debug.LogError("[CloudSaveApi] Response: " + req.downloadHandler.text);
             onLoaded?.Invoke(null);
             yield break;
         }
@@ -69,10 +68,15 @@ public static class CloudSaveApi
         string raw = req.downloadHandler.text;
         Debug.Log("[CloudSaveApi] Load raw: " + raw);
 
-        var wrapper = JsonUtility.FromJson<LoadResponseWrapper>(raw);
-        if (wrapper != null && wrapper.status == "success")
-            onLoaded?.Invoke(wrapper.saveData);
-        else
-            onLoaded?.Invoke(null);
+        var wrapperArray = JsonUtility.FromJson<SaveDataArrayWrapper>(raw); 
+        // cần định nghĩa SaveDataArrayWrapper để JsonUtility parse thành mảng
+        onLoaded?.Invoke(wrapperArray.saveDataArray);
     }
+
+    [Serializable]
+    private class SaveDataArrayWrapper
+    {
+        public SaveData[] saveDataArray;
+    }
+
 }

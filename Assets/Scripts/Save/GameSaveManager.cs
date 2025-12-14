@@ -11,14 +11,19 @@ public class GameSaveManager : MonoBehaviour
     public PlayerControllerCombined playerController;
     public PlayerStatus playerStatus;
 
+    [Header("Game Timer")]
+    public GameTimer gameTimer; // thêm này nếu có
+
     [Header("Auto Save")]
-    public float autoSaveInterval = 600f; // 10 phút
+    public float autoSaveInterval = 600f;
     public bool enableAutoSave = true;
 
     [Header("Cloud")]
     public string cloudBaseUrl = "https://cloud-save-server.onrender.com/api";
-    public bool autoLoadOnStart = false; // muốn “vào game là load luôn” thì bật
+    public bool autoLoadOnStart = false;
 
+    private int currentSlot = -1; // thêm biến slot hiện tại
+    
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -28,24 +33,13 @@ public class GameSaveManager : MonoBehaviour
         }
 
         Instance = this;
-
-        // QUAN TRỌNG: object này phải là ROOT trong Hierarchy
         DontDestroyOnLoad(gameObject);
     }
 
 
     private void Start()
     {
-        // set url cho CloudSaveApi
-        CloudSaveApi.BASE_URL = cloudBaseUrl;
-
-        // đảm bảo có identity
-        PlayerIdentity.GetOrCreatePlayerId();
-        if (string.IsNullOrEmpty(PlayerIdentity.GetPlayerName()))
-            PlayerIdentity.SetPlayerName("Guest");
-
-        Debug.Log("[GameSaveManager] playerId=" + PlayerIdentity.GetOrCreatePlayerId()
-            + " name=" + PlayerIdentity.GetPlayerName());
+        Debug.Log("Persistent Path = " + Application.persistentDataPath);
 
         FindPlayerRefs();
         StartCoroutine(AutoSaveRoutine());
@@ -73,11 +67,12 @@ public class GameSaveManager : MonoBehaviour
 
         if (playerController != null && playerStatus == null)
             playerStatus = playerController.GetComponent<PlayerStatus>();
+
+        if (gameTimer == null)
+            gameTimer = FindObjectOfType<GameTimer>();
     }
 
-    // ============================
-    // AUTO SAVE LOOP
-    // ============================
+    // AUTO SAVE ====================================
     private IEnumerator AutoSaveRoutine()
     {
         while (true)
@@ -218,39 +213,46 @@ private IEnumerator LoadSceneAndApply(SaveData data)
 // ============================
 // SAVE (cloud metadata only)
 // ============================
-public void Save()
-{
-    // Chỉ gửi metadata (name + saveTime)
-    SaveData data = new SaveData();
-    data.playerName = PlayerIdentity.GetPlayerName();
-    data.saveTime = System.DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+    public void SaveCompletionTime(float completionTime)
+    {
+        SaveData data = new SaveData();
+        data.playerName = PlayerIdentity.GetPlayerName();
+        data.saveTime = System.DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        data.completionTime = completionTime;
 
-    string playerId = PlayerIdentity.GetOrCreatePlayerId();
+        string playerId = PlayerIdentity.GetOrCreatePlayerId();
 
-    Debug.Log("[CloudSave] Sending metadata: " + JsonUtility.ToJson(data));
+        Debug.Log("[CloudSave] Sending completion time: " + JsonUtility.ToJson(data));
+        StartCoroutine(CloudSaveApi.SaveAll(playerId, data.playerName, data));
+    }
 
-    StartCoroutine(CloudSaveApi.SaveAll(playerId, data.playerName, data));
-}
 
 // ============================
 // LOAD (cloud metadata only)
 // ============================
-public void Load()
-{
-    string playerId = PlayerIdentity.GetOrCreatePlayerId();
-    StartCoroutine(CloudSaveApi.LoadAll(playerId, OnCloudMetaLoaded));
-}
-
-private void OnCloudMetaLoaded(SaveData data)
-{
-    if (data == null)
+    SaveData[] leaderboard;
+    public void LoadLeaderboard()
     {
-        Debug.LogWarning("[GameSaveManager] No cloud metadata found (or load failed).");
-        return;
+        string playerId = PlayerIdentity.GetOrCreatePlayerId();
+        StartCoroutine(CloudSaveApi.LoadAll(playerId, OnLeaderboardLoaded));
     }
 
-    Debug.Log($"[CloudLoad] Metadata: Name={data.playerName}, Time={data.saveTime}");
-    // Nếu muốn, update UI danh sách save cloud ở đây
-}
+    private void OnLeaderboardLoaded(SaveData[] dataArray)
+    {
+        if (dataArray == null || dataArray.Length == 0)
+        {
+            Debug.LogWarning("[GameSaveManager] No cloud leaderboard found.");
+            return;
+        }
+
+        foreach (var entry in dataArray)
+        {
+            Debug.Log($"Leaderboard entry: {entry.playerName} - {entry.completionTime}s");
+        }
+
+        // Update UI leaderboard ở đây
+    }
+
+
 
 }
