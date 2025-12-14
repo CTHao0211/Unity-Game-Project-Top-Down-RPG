@@ -55,33 +55,24 @@ public class MainMenuUI : MonoBehaviour
     // ====== Nút trong Game mới ======
     public void OnClickStartGame()
     {
+
         string playerName = string.IsNullOrWhiteSpace(nameInput.text)
             ? "Player"
             : nameInput.text;
 
-        // Lưu tên người chơi
         PlayerPrefs.SetString("PlayerName", playerName);
         PlayerPrefs.Save();
 
         Debug.Log("Tên người chơi: " + playerName);
 
-        // Chuyển sang scene game
-        SceneManager.LoadScene("Scene1");
+        SceneManager.LoadScene(gameplaySceneName);
     }
+
 
 
     public void OnClickQuit()
     {
         Application.Quit();
         Debug.Log("Quit game");
-    }
-
-    // ====== Slot load – tạm thời chỉ log ======
-    public void OnClickLoadSlot(int slot)
-    {
-        Debug.Log("Load slot " + slot);
-        // TODO: sau này:
-        // GameSaveManager.Instance.Load(slot);
-        // SceneManager.LoadScene(gameplaySceneName);
     }
 }

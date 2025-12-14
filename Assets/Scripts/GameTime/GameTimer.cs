@@ -24,6 +24,11 @@ public class GameTimer : MonoBehaviour
     }
 
     // Sau này nếu cần dùng:
+    public void SetTime(float time)
+    {
+        elapsedTime = time;
+    }
+
     public void StopTimer()
     {
         isRunning = false;

@@ -10,6 +10,7 @@ public class PlayerSaveData
     public int exp;
     public int currentHP;
     public int maxHP;
+    public int expToNextLevel;
 }
 
 [Serializable]
@@ -41,6 +42,12 @@ public class SaveData
 
     public EnemySaveData[] enemies;
     public AnimalSaveData[] animals;
-    
+
     public float gameTime;
+
+    // 👇 METADATA CHO SAVE UI
+    public string playerName;
+    public string saveTime; // DateTime.Now.ToString()
 }
+
+

@@ -17,6 +17,9 @@ public class LevelUI : MonoBehaviour
 
     private void Start()
     {
+        if (playerStatus == null)
+            playerStatus = FindObjectOfType<PlayerStatus>();
+
         if (playerStatus != null)
         {
             playerStatus.onExpChanged += UpdateUI;
@@ -25,18 +28,31 @@ public class LevelUI : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        if (playerStatus != null)
+        {
+            playerStatus.onExpChanged -= UpdateUI;
+            playerStatus.onLevelUp -= UpdateUI;
+        }
+    }
+
     public void UpdateUI()
     {
         if (playerStatus == null || expFill == null) return;
 
-        // FillAmount = 0 -> 1
-        expFill.fillAmount = (float)playerStatus.exp / playerStatus.expToNextLevel;
+        float ratio = playerStatus.expToNextLevel > 0
+            ? (float)playerStatus.exp / playerStatus.expToNextLevel
+            : 0f;
+
+        expFill.fillAmount = Mathf.Clamp01(ratio);
 
         if (expText != null)
-            expText.text = $"{playerStatus.exp}/{playerStatus.expToNextLevel} to level up!";
+            expText.text = $"{playerStatus.exp}/{playerStatus.expToNextLevel}";
 
         if (levelText != null)
-            levelText.text = $"Level: {playerStatus.level}";
+            levelText.text = $"Level {playerStatus.level}";
     }
+
 }
 
