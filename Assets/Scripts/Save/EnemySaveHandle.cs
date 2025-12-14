@@ -3,31 +3,23 @@ using System;
 
 public class EnemySaveHandle : MonoBehaviour
 {
-    [Header("ID tự sinh (đừng sửa tay)")]
+    [Header("Stable ID (không đổi)")]
     public string enemyId;
 
-    [Header("Health (EnemyHealth / HealthBase)")]
-    public HealthBase health;
+    private HealthBase health;
 
-    private void Awake()
+    public int CurrentHP
     {
-        if (health == null)
-            health = GetComponent<HealthBase>();
-    }
-
-    private void OnValidate()
-    {
-        // Tự sinh ID nếu đang trống
-        if (string.IsNullOrEmpty(enemyId))
+        get
         {
-            enemyId = Guid.NewGuid().ToString();
-#if UNITY_EDITOR
-            UnityEditor.EditorUtility.SetDirty(this);
-#endif
+            if (health == null) health = GetComponent<HealthBase>();
+            return health != null ? health.currentHealth : 0;
         }
-
-        if (health == null)
-            health = GetComponent<HealthBase>();
+        set
+        {
+            if (health == null) health = GetComponent<HealthBase>();
+            if (health != null) health.currentHealth = Mathf.Max(0, value);
+        }
     }
 
     public bool IsDead
@@ -35,32 +27,28 @@ public class EnemySaveHandle : MonoBehaviour
         get
         {
             if (!gameObject.activeSelf) return true;
-            if (health == null) return false;
-            return health.currentHealth <= 0;
+            if (health == null) health = GetComponent<HealthBase>();
+            return (health != null && health.currentHealth <= 0);
         }
     }
 
-    public int CurrentHP
+    private void Awake()
     {
-        get => health != null ? health.currentHealth : 0;
-        set
-        {
-            if (health == null) return;
-            health.currentHealth = Mathf.Clamp(value, 0, health.maxHealth);
-        }
-    }
-    public void ApplyState(float x, float y, int hp, bool isDead)
-{
-    if (isDead || hp <= 0)
-    {
-        gameObject.SetActive(false);
-        return;
+        health = GetComponent<HealthBase>();
     }
 
-    transform.position = new Vector3(x, y, transform.position.z);
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        // chỉ tạo mới nếu rỗng
+        if (string.IsNullOrEmpty(enemyId))
+            enemyId = Guid.NewGuid().ToString("N");
+    }
 
-    if (health != null)
-        health.ApplyLoadedHP(hp); 
-}
-
+    [ContextMenu("Regenerate ID")]
+    private void RegenerateId()
+    {
+        enemyId = Guid.NewGuid().ToString("N");
+    }
+#endif
 }

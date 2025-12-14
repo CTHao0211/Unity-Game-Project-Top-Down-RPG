@@ -11,11 +11,13 @@ public class GameSaveManager : MonoBehaviour
     public PlayerControllerCombined playerController;
     public PlayerStatus playerStatus;
 
-    [Header("Game Timer")]
-    public GameTimer gameTimer;
-
     [Header("Auto Save")]
-    public float autoSaveInterval = 600f;
+    public float autoSaveInterval = 600f; // 10 phút
+    public bool enableAutoSave = true;
+
+    [Header("Cloud")]
+    public string cloudBaseUrl = "https://cloud-save-server.onrender.com/api";
+    public bool autoLoadOnStart = false; // muốn “vào game là load luôn” thì bật
 
     private void Awake()
     {
@@ -26,21 +28,31 @@ public class GameSaveManager : MonoBehaviour
         }
 
         Instance = this;
+
+        // QUAN TRỌNG: object này phải là ROOT trong Hierarchy
         DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
     {
-        Debug.Log("Persistent Path = " + Application.persistentDataPath);
+        // set url cho CloudSaveApi
+        CloudSaveApi.BASE_URL = cloudBaseUrl;
+
+        // đảm bảo có identity
+        PlayerIdentity.GetOrCreatePlayerId();
+        if (string.IsNullOrEmpty(PlayerIdentity.GetPlayerName()))
+            PlayerIdentity.SetPlayerName("Guest");
+
+        Debug.Log("[GameSaveManager] playerId=" + PlayerIdentity.GetOrCreatePlayerId()
+            + " name=" + PlayerIdentity.GetPlayerName());
 
         FindPlayerRefs();
-        StartCoroutine(AutoSaveRoutine());
 
-        if (SaveSystem.HasSave())
-        {
-            Debug.Log("[GameSaveManager] Found save file, auto loading...");
+        if (enableAutoSave)
+            StartCoroutine(AutoSaveRoutine());
+
+        if (autoLoadOnStart)
             Load();
-        }
     }
 
     private void OnEnable()
@@ -65,86 +77,118 @@ public class GameSaveManager : MonoBehaviour
 
         if (playerController != null && playerStatus == null)
             playerStatus = playerController.GetComponent<PlayerStatus>();
-
-        if (gameTimer == null)
-            gameTimer = FindObjectOfType<GameTimer>();
     }
 
-    // AUTO SAVE ====================================
+    // ============================
+    // AUTO SAVE LOOP
+    // ============================
     private IEnumerator AutoSaveRoutine()
     {
         while (true)
         {
             yield return new WaitForSeconds(autoSaveInterval);
             Save();
-            Debug.Log("[AutoSave] Saved.");
+            Debug.Log("[AutoSave] Saved to cloud.");
         }
     }
 
-    // SAVE ==========================================
-    public void Save()
+    // ============================
+    // BUILD SAVE DATA (current scene)
+    // ============================
+    private SaveData BuildSaveDataForCurrentScene()
     {
-        Debug.Log("[GameSaveManager] Save() called.");
-        FindPlayerRefs();
-
-        if (playerController == null || playerStatus == null)
-        {
-            Debug.LogError("[GameSaveManager] Missing player references.");
-            return;
-        }
-
         SaveData data = new SaveData();
 
-        // Scene
-        data.sceneName = SceneManager.GetActiveScene().name;
+        // 1) Scene
+        Scene currentScene = SceneManager.GetActiveScene();
+        data.sceneName = currentScene.name;
 
-        // Player
+        // 2) Player
         data.player = new PlayerSaveData();
-        data.player.posX = playerController.transform.position.x;
-        data.player.posY = playerController.transform.position.y;
+        Vector3 pPos = playerController.transform.position;
+        data.player.posX = pPos.x;
+        data.player.posY = pPos.y;
 
         data.player.level = playerStatus.level;
         data.player.exp = playerStatus.exp;
         data.player.currentHP = playerStatus.CurrentHP;
         data.player.maxHP = playerStatus.MaxHP;
 
-        // GameTime
-        data.gameTime = gameTimer != null ? gameTimer.GetTime() : 0f;
-
-        // Enemies
-        var enemies = FindObjectsOfType<EnemySaveHandle>(true);
-        data.enemies = enemies.Select(e => new EnemySaveData
+        // 3) Enemies (include inactive)
+        EnemySaveHandle[] enemies = FindObjectsOfType<EnemySaveHandle>(true);
+        data.enemies = new EnemySaveData[enemies.Length];
+        for (int i = 0; i < enemies.Length; i++)
         {
-            id = e.enemyId,
-            posX = e.transform.position.x,
-            posY = e.transform.position.y,
-            currentHP = e.CurrentHP,
-            isDead = e.IsDead
-        }).ToArray();
+            var e = enemies[i];
+            var eData = new EnemySaveData
+            {
+                id = e.enemyId,
+                posX = e.transform.position.x,
+                posY = e.transform.position.y,
+                currentHP = e.CurrentHP,
+                isDead = e.IsDead
+            };
+            data.enemies[i] = eData;
+        }
 
-        // Animals
-        var animals = FindObjectsOfType<AnimalSaveHandle>(true);
-        data.animals = animals.Select(a => new AnimalSaveData
+        // 4) Animals (include inactive)
+        AnimalSaveHandle[] animals = FindObjectsOfType<AnimalSaveHandle>(true);
+        data.animals = new AnimalSaveData[animals.Length];
+        for (int i = 0; i < animals.Length; i++)
         {
-            id = a.animalId,
-            posX = a.transform.position.x,
-            posY = a.transform.position.y,
-            currentHP = a.CurrentHP,
-            isDead = a.IsDead
-        }).ToArray();
+            var a = animals[i];
+            var aData = new AnimalSaveData
+            {
+                id = a.animalId,
+                posX = a.transform.position.x,
+                posY = a.transform.position.y,
+                flipX = a.GetFlipX(),
+                hasHealth = a.HasHealth,
+                currentHP = a.HasHealth ? a.CurrentHP : 0
+            };
+            data.animals[i] = aData;
+        }
 
-        // SAVE FILE
-        SaveSystem.SaveGame(data);
-        Debug.Log("[GameSaveManager] Save complete.");
+        return data;
     }
 
-    // LOAD ==========================================
+    // ============================
+    // SAVE (cloud)
+    // ============================
+    public void Save()
+    {
+        FindPlayerRefs();
+        if (playerController == null || playerStatus == null)
+        {
+            Debug.LogError("[GameSaveManager] Không tìm thấy Player/PlayerStatus để save.");
+            return;
+        }
+
+        SaveData data = BuildSaveDataForCurrentScene();
+
+        string jsonCheck = JsonUtility.ToJson(data, true);
+        Debug.Log("Dữ liệu gửi đi: " + jsonCheck);
+
+        string playerId = PlayerIdentity.GetOrCreatePlayerId();
+        string playerName = PlayerIdentity.GetPlayerName();
+
+        StartCoroutine(CloudSaveApi.SaveAll(playerId, playerName, data));
+    }
+
+    // ============================
+    // LOAD (cloud)
+    // ============================
     public void Load()
     {
-        SaveData data = SaveSystem.LoadGame();
+        string playerId = PlayerIdentity.GetOrCreatePlayerId();
+        StartCoroutine(CloudSaveApi.LoadAll(playerId, OnCloudLoaded));
+    }
+
+    private void OnCloudLoaded(SaveData data)
+    {
         if (data == null)
         {
-            Debug.LogWarning("[GameSaveManager] No save file.");
+            Debug.LogWarning("[GameSaveManager] No cloud save found (or load failed).");
             return;
         }
 
@@ -153,53 +197,75 @@ public class GameSaveManager : MonoBehaviour
 
     private IEnumerator LoadSceneAndApply(SaveData data)
     {
-        // Load scene
+        // 1) Load đúng scene
         AsyncOperation op = SceneManager.LoadSceneAsync(data.sceneName);
-        while (!op.isDone) yield return null;
+        while (!op.isDone)
+            yield return null;
 
-        // Find references after scene load
+        // 2) Player
         FindPlayerRefs();
-
-        // Restore gameTime
-        if (gameTimer != null)
+        if (playerController == null || playerStatus == null)
         {
-            gameTimer.ResetTimer();
-            gameTimer.ResumeTimer();
-
-            typeof(GameTimer)
-                .GetField("elapsedTime", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .SetValue(gameTimer, data.gameTime);
+            Debug.LogError("[GameSaveManager] Không tìm thấy Player/PlayerStatus sau khi load scene.");
+            yield break;
         }
 
-        // Player
-        playerController.transform.position = new Vector3(data.player.posX, data.player.posY, 0);
+        playerController.transform.position = new Vector3(
+            data.player.posX,
+            data.player.posY,
+            playerController.transform.position.z
+        );
+
         playerStatus.level = data.player.level;
         playerStatus.exp = data.player.exp;
         playerStatus.MaxHP = data.player.maxHP;
         playerStatus.CurrentHP = data.player.currentHP;
 
-        // Enemies
-        foreach (var e in FindObjectsOfType<EnemySaveHandle>())
+        // 3) Enemies
+        EnemySaveHandle[] enemiesInScene = FindObjectsOfType<EnemySaveHandle>(true);
+        foreach (var e in enemiesInScene)
         {
-            var match = data.enemies.FirstOrDefault(x => x.id == e.enemyId);
-            if (match == null) continue;
+            var eData = data.enemies.FirstOrDefault(x => x.id == e.enemyId);
+            if (eData == null) continue;
 
-            e.ApplyState(match.posX, match.posY, match.currentHP, match.isDead);
+            if (eData.isDead || eData.currentHP <= 0)
+            {
+                e.gameObject.SetActive(false);
+            }
+            else
+            {
+                e.transform.position = new Vector3(
+                    eData.posX,
+                    eData.posY,
+                    e.transform.position.z
+                );
+                e.CurrentHP = eData.currentHP;
+                e.gameObject.SetActive(true);
+            }
         }
 
-        foreach (var a in FindObjectsOfType<AnimalSaveHandle>())
+        // 4) Animals
+        AnimalSaveHandle[] animalsInScene = FindObjectsOfType<AnimalSaveHandle>(true);
+        foreach (var a in animalsInScene)
         {
-            var match = data.animals.FirstOrDefault(x => x.id == a.animalId);
-            if (match == null) continue;
+            var aData = data.animals.FirstOrDefault(x => x.id == a.animalId);
+            if (aData == null) continue;
 
-            a.ApplyState(match.posX, match.posY, match.currentHP, match.isDead);
+            a.gameObject.SetActive(true);
+            a.ApplyState(
+                aData.posX,
+                aData.posY,
+                aData.flipX,
+                aData.hasHealth ? aData.currentHP : (int?)null
+            );
         }
 
-
-        Debug.Log("[GameSaveManager] Load complete.");
+        Debug.Log("[GameSaveManager] Cloud load hoàn tất.");
     }
 
-    // TEST KEY ======================================
+    // ============================
+    // TEST PC
+    // ============================
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.F5)) Save();
