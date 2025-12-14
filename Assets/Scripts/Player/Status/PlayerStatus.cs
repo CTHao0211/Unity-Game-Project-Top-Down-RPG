@@ -23,16 +23,25 @@ public class PlayerStatus : MonoBehaviour
         if (playerHealth == null)
             playerHealth = GetComponent<PlayerHealth>();
     }
+    public void ForceRefreshUI()
+    {
+        onExpChanged?.Invoke();
+        onLevelUp?.Invoke();
+    }
+
 
     public void AddExp(int amount)
     {
         exp += amount;
-        onExpChanged?.Invoke();
         CheckLevelUp();
+        onExpChanged?.Invoke();
     }
+
 
     private void CheckLevelUp()
     {
+        if (expToNextLevel <= 0) return;
+
         while (exp >= expToNextLevel)
         {
             exp -= expToNextLevel;
@@ -40,28 +49,25 @@ public class PlayerStatus : MonoBehaviour
         }
     }
 
+
     private void LevelUp()
     {
         level++;
         expToNextLevel = Mathf.FloorToInt(expToNextLevel * 1.2f);
 
-        // Tăng stats
         if (playerHealth != null)
         {
-            playerHealth.maxHealth += 5;                       // tăng max HP
-            playerHealth.currentHealth = playerHealth.maxHealth; // hồi full HP
-            playerHealth.UpdateHealthUI();                     // cập nhật thanh HP ngay lập tức
+            playerHealth.maxHealth += 5;
+            playerHealth.currentHealth = playerHealth.maxHealth;
+            playerHealth.UpdateHealthUI();
         }
-
 
         damage += 2;
 
-
         Debug.Log($"Level Up! Now Level {level}");
-
         onLevelUp?.Invoke();
-        onExpChanged?.Invoke();
     }
+
     public int CurrentHP
     {
         get => playerHealth != null ? playerHealth.currentHealth : 0;

@@ -31,6 +31,7 @@ public class PlayerHealth : MonoBehaviour
     public bool useInvulnerability = true;
     public float invulnTime = 0.3f;
     private bool isInvulnerable = false;
+    private bool loadedFromSave = false;
 
     private bool isDead = false;
     private void Awake()
@@ -54,17 +55,28 @@ public class PlayerHealth : MonoBehaviour
 
     private void Start()
     {
-        currentHealth = maxHealth;
+        if (!loadedFromSave)
+            currentHealth = maxHealth;
+
         UpdateHealthUI();
     }
+
 
     /// <summary>
     /// Nhận damage
     /// </summary>
-    public void TakeDamage(int dmg, Transform source = null, Color? popupColor = null)
+    public void TakeDamage(
+    int dmg,
+    Transform source = null,
+    Color? popupColor = null,
+    bool canKnockback = true,
+    bool ignoreInvuln = false
+)
+
     {
         if (isDead) return;
-        if (isInvulnerable) return;
+        if (isInvulnerable && !ignoreInvuln) return;
+
 
         // set invulnerable window nếu cần
         if (useInvulnerability)
@@ -86,8 +98,9 @@ public class PlayerHealth : MonoBehaviour
 
 
         // Knockback nếu có nguồn damage
-        if (source != null)
+        if (canKnockback && source != null)
             knockback?.GetKnockedBack(source, knockbackForce);
+
 
         // Damage Popup
         if (damagePopupPrefab != null && popupCanvas != null)
@@ -148,9 +161,31 @@ public class PlayerHealth : MonoBehaviour
             PlayerControllerCombined.instance.PlayDeath();
     }
 
+    public void ApplyLoadedHP(int hp)
+    {
+        loadedFromSave = true;
+        currentHealth = Mathf.Clamp(hp, 0, maxHealth);
+        UpdateHealthUI();
+    }
+
+
+
     public void OnDeathAnimationEnd()
     {
         if (GameManager.instance != null)
             GameManager.instance.GameOver();
     }
+    
+    public void ApplyLoadedHPDelayed(int hp)
+    {
+        StartCoroutine(ApplyNextFrame(hp));
+    }
+
+
+    private IEnumerator ApplyNextFrame(int hp)
+    {
+        yield return null;
+        ApplyLoadedHP(hp);
+    }
+
 }

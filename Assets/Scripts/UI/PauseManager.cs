@@ -1,10 +1,12 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PauseManager : MonoBehaviour
 {
     [Header("UI Panels")]
     public GameObject pauseMenuUI;
     public GameObject settingUI;
+    public GameObject saveUI;
 
     private bool isPaused = false;
 
@@ -24,10 +26,12 @@ public class PauseManager : MonoBehaviour
     public void Pause()
     {
         pauseMenuUI.SetActive(true);
-        settingUI.SetActive(false);   // đảm bảo SettingUI tắt
-        Time.timeScale = 0f;
+        settingUI.SetActive(false);
+        saveUI.SetActive(false); // đảm bảo Save Panel tắt
+        Time.timeScale = 0f;     // game dừng
         isPaused = true;
     }
+
 
     // Ẩn PauseUI
     public void ResumeGame()
@@ -44,32 +48,24 @@ public class PauseManager : MonoBehaviour
         settingUI.SetActive(true);
     }
 
-    // Đóng SettingUI và trở về PauseUI
-    public void CloseSettings()
-    {
-        settingUI.SetActive(false);
-        pauseMenuUI.SetActive(true);
-    }
 
     // Thoát game
+
     public void QuitGame()
     {
-        Application.Quit();
+        // Reset thời gian nếu đang pause
+        Time.timeScale = 1f;
+
+        // Load scene Main Menu (đổi tên scene đúng với project của bạn)
+        SceneManager.LoadScene("StartMenu");
     }
+
 
     // Lưu game (tùy chỉnh)
     public void SaveGame()
     {
-        Debug.Log("[PauseManager] Save button clicked");
-
-        if (GameSaveManager.Instance != null)
-        {
-            GameSaveManager.Instance.Save();
-            Debug.Log("[PauseManager] Gọi GameSaveManager.Save() xong.");
-        }
-        else
-        {
-            Debug.LogError("[PauseManager] GameSaveManager.Instance == null, không thể save.");
-        }
+        pauseMenuUI.SetActive(false);
+        saveUI.SetActive(true);
     }
+
 }
