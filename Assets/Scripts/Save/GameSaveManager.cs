@@ -16,6 +16,7 @@ public class GameSaveManager : MonoBehaviour
 
     [Header("Auto Save")]
     public float autoSaveInterval = 600f;
+    private int currentSlot = -1;
 
     private void Awake()
     {
@@ -29,24 +30,19 @@ public class GameSaveManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+
     private void Start()
     {
         Debug.Log("Persistent Path = " + Application.persistentDataPath);
 
         FindPlayerRefs();
         StartCoroutine(AutoSaveRoutine());
+    }
 
-        if (SaveSystem.HasSave())
+        private void OnEnable()
         {
-            Debug.Log("[GameSaveManager] Found save file, auto loading...");
-            Load();
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
-    }
-
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
 
     private void OnDisable()
     {
@@ -76,15 +72,20 @@ public class GameSaveManager : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(autoSaveInterval);
-            Save();
-            Debug.Log("[AutoSave] Saved.");
+
+            if (currentSlot >= 0)
+            {
+                SaveToSlot(currentSlot);
+                Debug.Log("[AutoSave] Saved slot " + currentSlot);
+            }
         }
     }
 
+
     // SAVE ==========================================
-    public void Save()
+    public void SaveToSlot(int slot)
     {
-        Debug.Log("[GameSaveManager] Save() called.");
+        Debug.Log($"[GameSaveManager] Save slot {slot}");
         FindPlayerRefs();
 
         if (playerController == null || playerStatus == null)
@@ -95,114 +96,113 @@ public class GameSaveManager : MonoBehaviour
 
         SaveData data = new SaveData();
 
-        // Scene
         data.sceneName = SceneManager.GetActiveScene().name;
 
         // Player
-        data.player = new PlayerSaveData();
-        data.player.posX = playerController.transform.position.x;
-        data.player.posY = playerController.transform.position.y;
-
-        data.player.level = playerStatus.level;
-        data.player.exp = playerStatus.exp;
-        data.player.currentHP = playerStatus.CurrentHP;
-        data.player.maxHP = playerStatus.MaxHP;
+        data.player = new PlayerSaveData
+        {
+            posX = playerController.transform.position.x,
+            posY = playerController.transform.position.y,
+            level = playerStatus.level,
+            exp = playerStatus.exp,
+            currentHP = playerStatus.CurrentHP,
+            maxHP = playerStatus.MaxHP,
+            expToNextLevel = playerStatus.expToNextLevel
+        };
 
         // GameTime
         data.gameTime = gameTimer != null ? gameTimer.GetTime() : 0f;
 
         // Enemies
-        var enemies = FindObjectsOfType<EnemySaveHandle>(true);
-        data.enemies = enemies.Select(e => new EnemySaveData
-        {
-            id = e.enemyId,
-            posX = e.transform.position.x,
-            posY = e.transform.position.y,
-            currentHP = e.CurrentHP,
-            isDead = e.IsDead
-        }).ToArray();
+        data.enemies = FindObjectsOfType<EnemySaveHandle>(true)
+            .Select(e => new EnemySaveData
+            {
+                id = e.enemyId,
+                posX = e.transform.position.x,
+                posY = e.transform.position.y,
+                currentHP = e.CurrentHP,
+                isDead = e.IsDead
+            }).ToArray();
 
         // Animals
-        var animals = FindObjectsOfType<AnimalSaveHandle>(true);
-        data.animals = animals.Select(a => new AnimalSaveData
-        {
-            id = a.animalId,
-            posX = a.transform.position.x,
-            posY = a.transform.position.y,
-            currentHP = a.CurrentHP,
-            isDead = a.IsDead
-        }).ToArray();
+        data.animals = FindObjectsOfType<AnimalSaveHandle>(true)
+            .Select(a => new AnimalSaveData
+            {
+                id = a.animalId,
+                posX = a.transform.position.x,
+                posY = a.transform.position.y,
+                currentHP = a.CurrentHP,
+                isDead = a.IsDead
+            }).ToArray();
 
-        // SAVE FILE
-        SaveSystem.SaveGame(data);
-        Debug.Log("[GameSaveManager] Save complete.");
+        // ✅ METADATA CHO SAVE UI (ĐẶT Ở ĐÂY)
+        data.playerName = PlayerPrefs.GetString("PlayerName", "Player");
+        data.saveTime = System.DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+
+        SaveSystem.SaveGame(slot, data);
+        Debug.Log($"[GameSaveManager] Save slot {slot} complete");
     }
 
+
     // LOAD ==========================================
-    public void Load()
+    public void LoadFromSlot(int slot)
     {
-        SaveData data = SaveSystem.LoadGame();
-        if (data == null)
-        {
-            Debug.LogWarning("[GameSaveManager] No save file.");
-            return;
-        }
+        currentSlot = slot;
+
+        SaveData data = SaveSystem.LoadGame(slot);
+        if (data == null) return;
 
         StartCoroutine(LoadSceneAndApply(data));
     }
 
-    private IEnumerator LoadSceneAndApply(SaveData data)
+
+
+private IEnumerator LoadSceneAndApply(SaveData data)
+{
+    // Load scene
+    AsyncOperation op = SceneManager.LoadSceneAsync(data.sceneName);
+    while (!op.isDone) yield return null;
+
+    // Chờ player được spawn
+    while (FindObjectOfType<PlayerControllerCombined>() == null)
+        yield return null;
+
+    FindPlayerRefs();
+
+    // Áp dụng dữ liệu player
+    playerController.transform.position = new Vector3(data.player.posX, data.player.posY, 0);
+    playerStatus.level = data.player.level;
+    playerStatus.exp = data.player.exp;
+    playerStatus.CurrentHP = data.player.currentHP;
+    playerStatus.MaxHP = data.player.maxHP;
+    playerStatus.expToNextLevel = data.player.expToNextLevel;
+    playerStatus.ForceRefreshUI();
+
+    // Áp dụng enemy
+    foreach (var e in FindObjectsOfType<EnemySaveHandle>())
     {
-        // Load scene
-        AsyncOperation op = SceneManager.LoadSceneAsync(data.sceneName);
-        while (!op.isDone) yield return null;
-
-        // Find references after scene load
-        FindPlayerRefs();
-
-        // Restore gameTime
-        if (gameTimer != null)
-        {
-            gameTimer.ResetTimer();
-            gameTimer.ResumeTimer();
-
-            typeof(GameTimer)
-                .GetField("elapsedTime", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .SetValue(gameTimer, data.gameTime);
-        }
-
-        // Player
-        playerController.transform.position = new Vector3(data.player.posX, data.player.posY, 0);
-        playerStatus.level = data.player.level;
-        playerStatus.exp = data.player.exp;
-        playerStatus.MaxHP = data.player.maxHP;
-        playerStatus.CurrentHP = data.player.currentHP;
-
-        // Enemies
-        foreach (var e in FindObjectsOfType<EnemySaveHandle>())
-        {
-            var match = data.enemies.FirstOrDefault(x => x.id == e.enemyId);
-            if (match == null) continue;
-
+        var match = data.enemies.FirstOrDefault(x => x.id == e.enemyId);
+        if (match != null)
             e.ApplyState(match.posX, match.posY, match.currentHP, match.isDead);
-        }
-
-        foreach (var a in FindObjectsOfType<AnimalSaveHandle>())
-        {
-            var match = data.animals.FirstOrDefault(x => x.id == a.animalId);
-            if (match == null) continue;
-
-            a.ApplyState(match.posX, match.posY, match.currentHP, match.isDead);
-        }
-
-
-        Debug.Log("[GameSaveManager] Load complete.");
     }
 
-    // TEST KEY ======================================
-    private void Update()
+    // Áp dụng animal
+    foreach (var a in FindObjectsOfType<AnimalSaveHandle>())
     {
-        if (Input.GetKeyDown(KeyCode.F5)) Save();
-        if (Input.GetKeyDown(KeyCode.F9)) Load();
+        var match = data.animals.FirstOrDefault(x => x.id == a.animalId);
+        if (match != null)
+            a.ApplyState(match.posX, match.posY, match.currentHP, match.isDead);
     }
+
+    // Khôi phục thời gian chơi
+    if (gameTimer != null)
+    {
+        gameTimer.ResetTimer();
+        gameTimer.SetTime(data.gameTime);
+        gameTimer.ResumeTimer();
+    }
+
+    Debug.Log($"Slot {currentSlot} loaded thành công!");
+}
+
 }
