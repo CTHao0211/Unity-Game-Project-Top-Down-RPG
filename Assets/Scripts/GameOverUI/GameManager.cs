@@ -13,13 +13,21 @@ public class GameManager : MonoBehaviour
     public TMP_Text survivalTimeText;
     public TMP_Text killCountText;
 
+    [Header("Game Win UI")]
+    public GameObject gameWinPanel;
+    public TMP_Text winPlayerNameText;
+    public TMP_Text winTimeText;
+    public TMP_Text winKillText;
+
     [Header("Player Info")]
     public string playerName = "Player";
 
     [Header("Stats")]
     public float survivalTime = 0f;
     public int killCount = 0;
+
     public bool IsGameOver { get; private set; } = false;
+    public bool IsGameWin { get; private set; } = false;
 
     [Header("Fade Settings")]
     public CanvasGroup fadeCanvasGroup;   // Panel đen full màn
@@ -34,19 +42,14 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         instance = this;
-        // Mỗi scene đều có 1 GameManager riêng => KHÔNG cần DontDestroyOnLoad
-        // DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
     {
-        // 🔹 LẤY TÊN NGƯỜI CHƠI ĐÃ LƯU TỪ STARTMENU
+        // Lấy tên người chơi đã lưu từ StartMenu
         if (PlayerPrefs.HasKey("PlayerName"))
-        {
             playerName = PlayerPrefs.GetString("PlayerName", "Player");
-        }
 
         // Fade in khi vào scene
         if (fadeCanvasGroup != null)
@@ -55,29 +58,31 @@ public class GameManager : MonoBehaviour
             StartCoroutine(FadeRoutine(0f)); // fade về trong suốt
         }
 
-        // Ẩn Game Over lúc đầu
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(false);
-    }
+        // Ẩn panel lúc đầu
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (gameWinPanel != null) gameWinPanel.SetActive(false);
 
+        // đảm bảo timeScale bình thường khi vào scene
+        Time.timeScale = 1f;
+    }
 
     private void Update()
     {
-        if (IsGameOver) return;
+        if (IsGameOver || IsGameWin) return;
         survivalTime += Time.deltaTime;
     }
 
     // Gọi khi quái chết
     public void AddKill()
     {
-        if (IsGameOver) return;
+        if (IsGameOver || IsGameWin) return;
         killCount++;
     }
 
     // Gọi khi player chết
     public void GameOver()
     {
-        if (IsGameOver) return;
+        if (IsGameOver || IsGameWin) return;
         IsGameOver = true;
 
         if (gameOverPanel != null)
@@ -92,7 +97,28 @@ public class GameManager : MonoBehaviour
         if (killCountText != null)
             killCountText.text = "Kills: " + killCount;
 
-        Time.timeScale = 0f; // dừng game (UI vẫn chạy)
+        Time.timeScale = 0f; // dừng game
+    }
+
+    // Gọi khi boss chết (WIN)
+    public void GameWin()
+    {
+        if (IsGameOver || IsGameWin) return;
+        IsGameWin = true;
+
+        if (gameWinPanel != null)
+            gameWinPanel.SetActive(true);
+
+        if (winPlayerNameText != null)
+            winPlayerNameText.text = "Player: " + playerName;
+
+        if (winTimeText != null)
+            winTimeText.text = "Time: " + FormatTime(survivalTime);
+
+        if (winKillText != null)
+            winKillText.text = "Kills: " + killCount;
+
+        Time.timeScale = 0f; // dừng game
     }
 
     private string FormatTime(float time)
@@ -105,14 +131,12 @@ public class GameManager : MonoBehaviour
 
     // ========= BUTTON CALLBACKS =========
 
-    // Gắn vào nút "Chơi lại"
     public void OnClickRestart()
     {
         if (isTransitioning) return;
         StartCoroutine(RestartRoutine());
     }
 
-    // Gắn vào nút "Trở về"
     public void OnClickReturnToMenu()
     {
         if (isTransitioning) return;
@@ -124,12 +148,14 @@ public class GameManager : MonoBehaviour
     private IEnumerator RestartRoutine()
     {
         isTransitioning = true;
-        Time.timeScale = 1f; // bật lại thời gian để fade hoạt động
+
+        // bật lại thời gian để fade hoạt động
+        Time.timeScale = 1f;
 
         yield return StartCoroutine(FadeRoutine(1f)); // fade đen
 
-        Scene current = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(current.buildIndex);
+        // ✅ Luôn quay về Scene1
+        SceneManager.LoadScene("Scene1");
     }
 
     private IEnumerator ReturnToMenuRoutine()
@@ -139,7 +165,7 @@ public class GameManager : MonoBehaviour
 
         yield return StartCoroutine(FadeRoutine(1f)); // fade đen
 
-        SceneManager.LoadScene("StartMenu"); // ĐỔI đúng tên scene StartMenu của bạn
+        SceneManager.LoadScene("StartMenu");
     }
 
     private IEnumerator FadeRoutine(float targetAlpha)
