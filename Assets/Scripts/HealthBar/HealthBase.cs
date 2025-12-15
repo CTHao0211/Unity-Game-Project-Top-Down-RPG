@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
+
 
 public abstract class HealthBase : MonoBehaviour
 {
@@ -26,6 +28,7 @@ public abstract class HealthBase : MonoBehaviour
     [SerializeField] protected DamageText damagePopupPrefab;
     [SerializeField] protected Transform popupCanvas;
     public bool loadedFromSave = false;
+    public Action OnDeath;
     protected virtual void Awake()
     {
         if (!loadedFromSave)

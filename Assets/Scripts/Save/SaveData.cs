@@ -23,7 +23,11 @@ public class EnemySaveData
     public float posY;
     public int currentHP;
     public bool isDead;
+
+    public float deathTime;      // gameTime lúc chết
+    public float respawnDelay;   // bao lâu thì hồi
 }
+
 
 [Serializable]
 public class AnimalSaveData
@@ -33,7 +37,11 @@ public class AnimalSaveData
     public float posY;
     public int currentHP;
     public bool isDead;
+
+    public float deathTime;
+    public float respawnDelay;
 }
+
 
 [Serializable]
 public class SaveData

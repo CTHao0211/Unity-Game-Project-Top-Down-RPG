@@ -6,13 +6,29 @@ public class AnimalSaveHandle : MonoBehaviour
     [Header("ID tự sinh (đừng sửa tay)")]
     public string animalId;
 
-    [Header("Health (HealthBase) - nếu có")]
+    [Header("Health (HealthBase)")]
     public HealthBase health;
+
+    [Header("Respawn")]
+    public float respawnDelay = 300f; // 5 phút
+
+    private float deathTime = -1f;
+    private Vector3 spawnPosition;
 
     private void Awake()
     {
         if (health == null)
             health = GetComponent<HealthBase>();
+
+        // 🔥 BẮT SỰ KIỆN CHẾT
+        if (health != null)
+            health.OnDeath += HandleDeath;
+    }
+
+    private void Start()
+    {
+        // Lưu vị trí spawn gốc
+        spawnPosition = transform.position;
     }
 
     private void OnValidate()
@@ -29,43 +45,88 @@ public class AnimalSaveHandle : MonoBehaviour
             health = GetComponent<HealthBase>();
     }
 
-    public int CurrentHP
+    // =====================
+    // STATE
+    // =====================
+
+    public int CurrentHP => health != null ? health.currentHealth : 0;
+
+    public bool IsDead =>
+        !gameObject.activeSelf || (health != null && health.currentHealth <= 0);
+
+    // =====================
+    // DEATH
+    // =====================
+
+    private void HandleDeath()
     {
-        get => health != null ? health.currentHealth : 0;
-        set
-        {
-            if (health == null) return;
-            health.currentHealth = Mathf.Clamp(value, 0, health.maxHealth);
-        }
+        // ⏱ ghi thời điểm chết (GAME TIME)
+        deathTime = GameTimer.Instance.GetTime();
     }
 
-    public bool IsDead
+    // =====================
+    // SAVE
+    // =====================
+
+    public AnimalSaveData GetSaveData()
     {
-        get
+        return new AnimalSaveData
         {
-            if (!gameObject.activeSelf) return true;
-            if (health == null) return false;
-            return health.currentHealth <= 0;
-        }
+            id = animalId,
+            posX = transform.position.x,
+            posY = transform.position.y,
+            currentHP = CurrentHP,
+            isDead = IsDead,
+            deathTime = deathTime,
+            respawnDelay = respawnDelay
+        };
     }
 
+    // =====================
+    // LOAD / BACKTRACK
+    // =====================
 
-    public Vector3 GetPosition() => transform.position;
-
-    /// <summary>
-    /// Áp dụng state khi load game
-    /// </summary>
-    public void ApplyState(float x, float y, int hp, bool isDead)
+    public void ApplyState(AnimalSaveData data)
     {
-        if (isDead || hp <= 0)
+        float now = GameTimer.Instance.GetTime();
+
+        // Nếu animal đã chết
+        if (data.isDead)
         {
+            // ⏱ đủ thời gian → respawn
+            if (data.deathTime > 0 && now - data.deathTime >= data.respawnDelay)
+            {
+                Respawn();
+                return;
+            }
+
+            // ❌ chưa đủ → giữ chết
+            deathTime = data.deathTime;
             gameObject.SetActive(false);
             return;
         }
 
-        transform.position = new Vector3(x, y, transform.position.z);
+        // Animal còn sống
+        transform.position = new Vector3(data.posX, data.posY, transform.position.z);
 
         if (health != null)
-            health.ApplyLoadedHP(hp); 
+            health.ApplyLoadedHP(data.currentHP);
+
+        gameObject.SetActive(true);
+    }
+
+    // =====================
+    // RESPAWN
+    // =====================
+
+    private void Respawn()
+    {
+        deathTime = -1f;
+        transform.position = spawnPosition;
+
+        if (health != null)
+            health.ApplyLoadedHP(health.maxHealth);
+
+        gameObject.SetActive(true);
     }
 }
