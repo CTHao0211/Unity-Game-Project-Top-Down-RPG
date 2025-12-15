@@ -1,18 +1,19 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
 using TMPro;
 
 public class MainMenuUI : MonoBehaviour
 {
     [Header("Panels")]
-    public GameObject panelMain;    // cái panel có START GAME, Game mới, Load, Cài đặt, Thoát
-    public GameObject panelNewGame; // panel đặt tên
-    public GameObject panelLoad;    // panel load slot
-    public GameObject panelSetting; // nếu chưa có thì để trống
+    public GameObject panelMain;
+    public GameObject panelNewGame;
+    public GameObject panelLoad;
+    public GameObject panelSetting;
 
     [Header("New Game")]
     public TMP_InputField nameInput;
-    public string gameplaySceneName = "Scene1";   // Đổi đúng tên scene chơi game của bạn
+
+    [Header("Intro")]
+    public IntroController introController;   // ⭐ thêm dòng này
 
     private void Start()
     {
@@ -55,7 +56,6 @@ public class MainMenuUI : MonoBehaviour
     // ====== Nút trong Game mới ======
     public void OnClickStartGame()
     {
-
         string playerName = string.IsNullOrWhiteSpace(nameInput.text)
             ? "Player"
             : nameInput.text;
@@ -65,10 +65,9 @@ public class MainMenuUI : MonoBehaviour
 
         Debug.Log("Tên người chơi: " + playerName);
 
-        SceneManager.LoadScene(gameplaySceneName);
+        // ⭐ KHÔNG load scene ở đây
+        introController.StartIntro(); // 👉 chạy intro
     }
-
-
 
     public void OnClickQuit()
     {
