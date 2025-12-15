@@ -90,7 +90,8 @@ public class PlayerHealth : MonoBehaviour
             currentHealth = 0;
 
         // Flash khi bị damage
-        flash.FlashWhite();
+        flash?.FlashWhite();
+
 
 
         //// Animator trigger (nếu muốn)
@@ -157,9 +158,16 @@ public class PlayerHealth : MonoBehaviour
     {
         Debug.Log("Player died!");
 
+        // chạy animation chết nếu có
         if (PlayerControllerCombined.instance != null)
             PlayerControllerCombined.instance.PlayDeath();
+
+        // ✅ luôn gọi GameOver (không phụ thuộc animation event)
+        var gm = GameManager.instance ?? FindObjectOfType<GameManager>();
+        if (gm != null)
+            gm.GameOver();
     }
+
 
     public void ApplyLoadedHP(int hp)
     {
@@ -172,10 +180,12 @@ public class PlayerHealth : MonoBehaviour
 
     public void OnDeathAnimationEnd()
     {
-        if (GameManager.instance != null)
-            GameManager.instance.GameOver();
+        // không cần nữa, hoặc giữ cũng được vì GameOver có chặn IsGameOver
+        var gm = GameManager.instance ?? FindObjectOfType<GameManager>();
+        gm?.GameOver();
     }
-    
+
+
     public void ApplyLoadedHPDelayed(int hp)
     {
         StartCoroutine(ApplyNextFrame(hp));

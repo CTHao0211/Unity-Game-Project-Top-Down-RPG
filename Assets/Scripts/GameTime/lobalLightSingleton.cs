@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GlobalLightSingleton : MonoBehaviour
 {
@@ -6,13 +6,18 @@ public class GlobalLightSingleton : MonoBehaviour
 
     private void Awake()
     {
-        if (instance != null)
+        if (instance != null && instance != this)
         {
-            Destroy(gameObject);
+            Destroy(gameObject);   // ❗ xoá cái thừa
             return;
         }
 
         instance = this;
+
+        // ❗ BẮT BUỘC: đưa lên root
+        if (transform.parent != null)
+            transform.SetParent(null);
+
         DontDestroyOnLoad(gameObject);
     }
 }
