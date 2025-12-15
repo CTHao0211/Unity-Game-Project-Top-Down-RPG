@@ -130,7 +130,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad84f6d0f0736804b93fa004be11ff80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timerText: {fileID: 0}
 --- !u!114 &4427160579356276012
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147,6 +146,10 @@ MonoBehaviour:
   playerNameText: {fileID: 0}
   survivalTimeText: {fileID: 0}
   killCountText: {fileID: 0}
+  gameWinPanel: {fileID: 0}
+  winPlayerNameText: {fileID: 0}
+  winTimeText: {fileID: 0}
+  winKillText: {fileID: 0}
   playerName: Player
   survivalTime: 0
   killCount: 0
