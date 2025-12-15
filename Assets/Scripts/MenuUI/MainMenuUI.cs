@@ -58,13 +58,15 @@ public class MainMenuUI : MonoBehaviour
     {
         string playerName = string.IsNullOrWhiteSpace(nameInput.text)
             ? "Player"
-            : nameInput.text;
+            : nameInput.text.Trim();
 
         PlayerPrefs.SetString("PlayerName", playerName);
         PlayerPrefs.Save();
 
         Debug.Log("Tên người chơi: " + playerName);
 
+        PlayerIdentity.SetPlayerName(playerName);
+        SceneManager.LoadScene(gameplaySceneName);
         // ⭐ KHÔNG load scene ở đây
         introController.StartIntro(); // 👉 chạy intro
     }
