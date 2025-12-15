@@ -791,10 +791,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  moveSpeed: 2
+  moveSpeed: 3
   stopDistance: 0.8
-  aggroRange: 5
-  loseRange: 7
+  aggroRange: 7
+  loseRange: 15
   returnSpeed: 2
 --- !u!1 &4634681851371526071
 GameObject:
