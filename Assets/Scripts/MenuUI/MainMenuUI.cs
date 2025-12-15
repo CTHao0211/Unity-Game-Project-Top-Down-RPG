@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using TMPro;
-
+using UnityEngine.SceneManagement;
 public class MainMenuUI : MonoBehaviour
 {
     [Header("Panels")]
     public GameObject panelMain;
     public GameObject panelNewGame;
     public GameObject panelLoad;
-    public GameObject panelSetting;
+    public GameObject panelLeaderBoard;
 
     [Header("New Game")]
     public TMP_InputField nameInput;
@@ -26,7 +26,7 @@ public class MainMenuUI : MonoBehaviour
         panelMain.SetActive(true);
         panelNewGame.SetActive(false);
         panelLoad.SetActive(false);
-        if (panelSetting != null) panelSetting.SetActive(false);
+        panelLeaderBoard.SetActive(false);
     }
 
     public void ShowNewGamePanel()
@@ -34,7 +34,7 @@ public class MainMenuUI : MonoBehaviour
         panelMain.SetActive(false);
         panelNewGame.SetActive(true);
         panelLoad.SetActive(false);
-        if (panelSetting != null) panelSetting.SetActive(false);
+        panelLeaderBoard.SetActive(false);
     }
 
     public void ShowLoadPanel()
@@ -42,15 +42,15 @@ public class MainMenuUI : MonoBehaviour
         panelMain.SetActive(false);
         panelNewGame.SetActive(false);
         panelLoad.SetActive(true);
-        if (panelSetting != null) panelSetting.SetActive(false);
+        panelLeaderBoard.SetActive(false);
     }
 
-    public void ShowSettingPanel()
+    public void ShowLeatherBoardPanel()
     {
         panelMain.SetActive(false);
         panelNewGame.SetActive(false);
         panelLoad.SetActive(false);
-        if (panelSetting != null) panelSetting.SetActive(true);
+        panelLeaderBoard.SetActive(true);
     }
 
     // ====== Nút trong Game mới ======
@@ -60,16 +60,14 @@ public class MainMenuUI : MonoBehaviour
             ? "Player"
             : nameInput.text.Trim();
 
-        PlayerPrefs.SetString("PlayerName", playerName);
-        PlayerPrefs.Save();
+        PlayerIdentity.SetPlayerName(playerName);
+        PlayerIdentity.GetOrCreatePlayerId(); // đảm bảo có ID
 
         Debug.Log("Tên người chơi: " + playerName);
 
-        PlayerIdentity.SetPlayerName(playerName);
-        SceneManager.LoadScene(gameplaySceneName);
-        // ⭐ KHÔNG load scene ở đây
-        introController.StartIntro(); // 👉 chạy intro
+        introController.StartIntro(); 
     }
+
 
     public void OnClickQuit()
     {
