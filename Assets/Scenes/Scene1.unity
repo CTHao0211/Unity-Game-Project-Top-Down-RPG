@@ -29979,6 +29979,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 986482054256277852, guid: 09b8f6e247afa8a43a4c7f9c790b7f5f, type: 3}
+      propertyPath: fadePanel
+      value: 
+      objectReference: {fileID: 1616850798}
     - target: {fileID: 1539295805551006971, guid: 09b8f6e247afa8a43a4c7f9c790b7f5f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
