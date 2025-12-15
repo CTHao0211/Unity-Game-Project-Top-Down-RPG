@@ -3468,7 +3468,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pauseMenuUI: {fileID: 3900225116052325007}
   settingUI: {fileID: 5886412523556414857}
-  saveUI: {fileID: 2559108676799375125}
+  saveUI: {fileID: 2559108676799375125}s
   fadePanel: {fileID: 3185365296037471063}
 --- !u!222 &5211017791570491859
 CanvasRenderer:
