@@ -1,35 +1,43 @@
 ﻿using UnityEngine;
-using TMPro;
 
 public class GameTimer : MonoBehaviour
 {
-    [Header("UI")]
-    public TextMeshProUGUI timerText;   // kéo TimerText vào đây
+    public static GameTimer Instance;
 
-    private float elapsedTime = 0f;
+    private float time;
     private bool isRunning = true;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
 
     private void Update()
     {
         if (!isRunning) return;
-
-        elapsedTime += Time.deltaTime;
-
-        int totalSeconds = Mathf.FloorToInt(elapsedTime);
-        int minutes = totalSeconds / 60;
-        int seconds = totalSeconds % 60;
-
-        // Nếu không muốn chữ "Time:" thì bỏ đi
-        timerText.text = $"Time: {minutes:00}:{seconds:00}";
+        time += Time.unscaledDeltaTime;
     }
 
-    // Sau này nếu cần dùng:
-    public void SetTime(float time)
+    public float GetTime() => time;
+
+    public void SetTime(float value)
     {
-        elapsedTime = time;
+        time = Mathf.Max(0f, value);
     }
 
-    public void StopTimer()
+    public void ResetTimer()
+    {
+        time = 0f;
+    }
+
+    public void PauseTimer()
     {
         isRunning = false;
     }
@@ -37,15 +45,5 @@ public class GameTimer : MonoBehaviour
     public void ResumeTimer()
     {
         isRunning = true;
-    }
-
-    public void ResetTimer()
-    {
-        elapsedTime = 0f;
-    }
-
-    public float GetTime()
-    {
-        return elapsedTime;
     }
 }

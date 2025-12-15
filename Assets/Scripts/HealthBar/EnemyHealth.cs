@@ -40,7 +40,7 @@ public class EnemyHealth : HealthBase
         AnimalAudio audio = GetComponent<AnimalAudio>();
         if (audio != null)
             audio.PlayDeathSound();
-
+        OnDeath?.Invoke();
         // Tắt thay vì phá hủy
         StartCoroutine(DisableAfterDelay(0.3f));
     }
