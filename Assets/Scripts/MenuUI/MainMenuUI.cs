@@ -7,7 +7,7 @@ public class MainMenuUI : MonoBehaviour
     public GameObject panelMain;
     public GameObject panelNewGame;
     public GameObject panelLoad;
-    public GameObject panelSetting;
+    public GameObject panelLeaderBoard;
 
     [Header("New Game")]
     public TMP_InputField nameInput;
@@ -26,7 +26,7 @@ public class MainMenuUI : MonoBehaviour
         panelMain.SetActive(true);
         panelNewGame.SetActive(false);
         panelLoad.SetActive(false);
-        if (panelSetting != null) panelSetting.SetActive(false);
+        panelLeaderBoard.SetActive(false);
     }
 
     public void ShowNewGamePanel()
@@ -34,7 +34,7 @@ public class MainMenuUI : MonoBehaviour
         panelMain.SetActive(false);
         panelNewGame.SetActive(true);
         panelLoad.SetActive(false);
-        if (panelSetting != null) panelSetting.SetActive(false);
+        panelLeaderBoard.SetActive(false);
     }
 
     public void ShowLoadPanel()
@@ -42,15 +42,15 @@ public class MainMenuUI : MonoBehaviour
         panelMain.SetActive(false);
         panelNewGame.SetActive(false);
         panelLoad.SetActive(true);
-        if (panelSetting != null) panelSetting.SetActive(false);
+        panelLeaderBoard.SetActive(false);
     }
 
-    public void ShowSettingPanel()
+    public void ShowLeatherBoardPanel()
     {
         panelMain.SetActive(false);
         panelNewGame.SetActive(false);
         panelLoad.SetActive(false);
-        if (panelSetting != null) panelSetting.SetActive(true);
+        panelLeaderBoard.SetActive(true);
     }
 
     // ====== Nút trong Game mới ======
