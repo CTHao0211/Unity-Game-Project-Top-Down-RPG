@@ -157,6 +157,10 @@ public class GameSaveManager : MonoBehaviour
 
     private IEnumerator LoadSceneAndApply(SaveData data)
     {
+        // ✅ FIX: đồng bộ lại PlayerPrefs theo dữ liệu slot (để save/leaderboard không bị tên cũ)
+        if (!string.IsNullOrWhiteSpace(data.playerName))
+            PlayerPrefs.SetString("PlayerName", data.playerName);
+
         AsyncOperation op = SceneManager.LoadSceneAsync(data.sceneName);
         while (!op.isDone) yield return null;
 
@@ -177,20 +181,19 @@ public class GameSaveManager : MonoBehaviour
 
         playerStatus.ForceRefreshUI();
 
-    foreach (var e in FindObjectsOfType<EnemySaveHandle>())
-    {
-        var match = data.enemies.FirstOrDefault(x => x.id == e.enemyId);
-        if (match != null)
-            e.ApplyState(match); // truyền cả object
-    }
+        foreach (var e in FindObjectsOfType<EnemySaveHandle>())
+        {
+            var match = data.enemies.FirstOrDefault(x => x.id == e.enemyId);
+            if (match != null)
+                e.ApplyState(match);
+        }
 
-    foreach (var a in FindObjectsOfType<AnimalSaveHandle>())
-    {
-        var match = data.animals.FirstOrDefault(x => x.id == a.animalId);
-        if (match != null)
-            a.ApplyState(match); // tương tự
-    }
-
+        foreach (var a in FindObjectsOfType<AnimalSaveHandle>())
+        {
+            var match = data.animals.FirstOrDefault(x => x.id == a.animalId);
+            if (match != null)
+                a.ApplyState(match);
+        }
 
         if (gameTimer != null)
         {
@@ -199,8 +202,9 @@ public class GameSaveManager : MonoBehaviour
             gameTimer.ResumeTimer();
         }
 
-        Debug.Log($"Slot {currentSlot} loaded thành công!");
+        Debug.Log($"Slot {currentSlot} loaded thành công! PlayerName={PlayerPrefs.GetString("PlayerName")}");
     }
+
 
     // ============================
     // SUBMIT RUN -> LEADERBOARD

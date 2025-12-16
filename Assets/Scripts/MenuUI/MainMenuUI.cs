@@ -65,12 +65,11 @@ public class MainMenuUI : MonoBehaviour
             ? "Player"
             : nameInput.text.Trim();
 
-        // Lưu tên người chơi
         PlayerPrefs.SetString("PlayerName", playerName);
+        PlayerPrefs.Save();
 
+        PlayerIdentity.SetPlayerName(playerName);
 
-        // Nếu bạn muốn, tạo Player mới hoặc reset GameManager prefab
-        // Giả sử introController sẽ load Scene game
         introController.StartIntro();
     }
 
