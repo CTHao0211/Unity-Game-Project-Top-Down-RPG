@@ -89,8 +89,8 @@ public class GameManager : MonoBehaviour
 
     public void GameWin()
     {
+        Debug.Log(">>> GameWin() CALLED <<<");
         if (IsGameWin || IsGameOver) return;
-        if (SceneManager.GetActiveScene().name != "Scene2") return;
 
         IsGameWin = true;
 
