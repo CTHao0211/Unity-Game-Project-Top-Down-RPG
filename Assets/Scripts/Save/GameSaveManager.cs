@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;                     
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -20,9 +21,6 @@ public class GameSaveManager : MonoBehaviour
     // 🔥 DATA ĐANG LOAD
     private SaveData loadedData;
 
-    // =========================
-    // LIFECYCLE
-    // =========================
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -40,14 +38,15 @@ public class GameSaveManager : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    private void Start()
+    {
+        Debug.Log("Persistent Path = " + Application.persistentDataPath);
+        FindPlayerRefs();
+    }
+
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    private void Start()
-    {
-        FindPlayerRefs();
     }
 
     // =========================
@@ -97,9 +96,7 @@ public class GameSaveManager : MonoBehaviour
             gameTimer = FindObjectOfType<GameTimer>();
     }
 
-    // =========================
-    // SAVE
-    // =========================
+    // SAVE LOCAL ====================================
     public void SaveToSlot(int slot)
     {
         currentSlot = slot;
@@ -112,14 +109,12 @@ public class GameSaveManager : MonoBehaviour
         }
 
         SaveData data = new SaveData();
-
         data.sceneName = SceneManager.GetActiveScene().name;
         data.sceneTransitionName = SceneManagement.Instance != null
         ? SceneManagement.Instance.SceneTransitionName
         : string.Empty;
 
 
-        // Player
         data.player = new PlayerSaveData
         {
             posX = playerController.transform.position.x,
@@ -132,30 +127,24 @@ public class GameSaveManager : MonoBehaviour
             damage = playerStatus.damage
         };
 
-        // Game time
         data.gameTime = gameTimer != null ? gameTimer.GetTime() : 0f;
 
-        // Enemies
         data.enemies = FindObjectsOfType<EnemySaveHandle>(true)
             .Select(e => e.GetSaveData())
             .ToArray();
 
-        // Animals
         data.animals = FindObjectsOfType<AnimalSaveHandle>(true)
             .Select(a => a.GetSaveData())
             .ToArray();
 
-        // Metadata
         data.playerName = PlayerPrefs.GetString("PlayerName", "Player");
-        data.saveTime = System.DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        data.saveTime = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
 
         SaveSystem.SaveGame(slot, data);
         Debug.Log($"[GameSaveManager] Save slot {slot} complete");
     }
 
-    // =========================
-    // LOAD
-    // =========================
+    // LOAD LOCAL ====================================
     public void LoadFromSlot(int slot)
     {
         currentSlot = slot;
@@ -171,26 +160,13 @@ public class GameSaveManager : MonoBehaviour
         AsyncOperation op = SceneManager.LoadSceneAsync(data.sceneName);
         while (!op.isDone) yield return null;
 
-        // 🔥 RESTORE TRANSITION
-        if (SceneManagement.Instance != null)
-        {
-            SceneManagement.Instance.SetTransitionName(data.sceneTransitionName);
-        }
-
-        // Chờ player spawn
         while (FindObjectOfType<PlayerControllerCombined>() == null)
             yield return null;
 
         FindPlayerRefs();
 
-        // 🔥 KHÔNG GHI ĐÈ VỊ TRÍ NẾU CÓ TRANSITION
-        if (string.IsNullOrEmpty(data.sceneTransitionName))
-        {
-            playerController.transform.position =
-                new Vector2(data.player.posX, data.player.posY);
-        }
+        playerController.transform.position = new Vector2(data.player.posX, data.player.posY);
 
-        // Player stats
         playerStatus.level = data.player.level;
         playerStatus.exp = data.player.exp;
         playerStatus.expToNextLevel = data.player.expToNextLevel;
@@ -201,12 +177,81 @@ public class GameSaveManager : MonoBehaviour
 
         playerStatus.ForceRefreshUI();
 
+    foreach (var e in FindObjectsOfType<EnemySaveHandle>())
+    {
+        var match = data.enemies.FirstOrDefault(x => x.id == e.enemyId);
+        if (match != null)
+            e.ApplyState(match); // truyền cả object
+    }
+
+    foreach (var a in FindObjectsOfType<AnimalSaveHandle>())
+    {
+        var match = data.animals.FirstOrDefault(x => x.id == a.animalId);
+        if (match != null)
+            a.ApplyState(match); // tương tự
+    }
+
+
         if (gameTimer != null)
         {
             gameTimer.ResetTimer();
             gameTimer.SetTime(data.gameTime);
             gameTimer.ResumeTimer();
         }
+
+        Debug.Log($"Slot {currentSlot} loaded thành công!");
     }
 
+    // ============================
+    // SUBMIT RUN -> LEADERBOARD
+    // ============================
+    public void SaveCompletionTime(float completionTimeSeconds)
+    {
+        int timeMs = Mathf.FloorToInt(Mathf.Max(0f, completionTimeSeconds) * 1000f);
+
+        string playerId = PlayerIdentity.GetOrCreatePlayerId();
+        string playerName = PlayerIdentity.GetPlayerName();
+
+        Debug.Log($"[GameSaveManager] SubmitRun timeMs={timeMs}, player={playerName} ({playerId})");
+        StartCoroutine(LeaderboardApi.SubmitRun(playerId, playerName, timeMs));
+    }
+
+    // ============================
+    // LOAD LEADERBOARD
+    // ============================
+    private SaveData[] leaderboard = new SaveData[0];
+    public SaveData[] GetLeaderboardData() => leaderboard;
+
+    public void LoadLeaderboard()
+    {
+        StartCoroutine(LeaderboardApi.LoadLeaderboard(50, OnLeaderboardLoaded));
+    }
+
+    private void OnLeaderboardLoaded(SaveData[] dataArray)
+    {
+        if (dataArray == null)
+        {
+            Debug.LogWarning("[GameSaveManager] Leaderboard load failed (null).");
+            return;
+        }
+
+        if (dataArray.Length == 0)
+        {
+            Debug.LogWarning("[GameSaveManager] Leaderboard empty.");
+            leaderboard = new SaveData[0];
+            return;
+        }
+
+        leaderboard = dataArray;
+
+        var ui = FindObjectOfType<LeaderboardUIManager>(true);
+        if (ui != null)
+        {
+            ui.ShowLeaderboardUI();
+        }
+        else
+        {
+            Debug.LogWarning("[GameSaveManager] NOT found LeaderboardUIManager in scene.");
+        }
+    }
 }
