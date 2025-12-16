@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using TMPro;
-using UnityEngine.SceneManagement;
+
 public class MainMenuUI : MonoBehaviour
 {
     [Header("Panels")]
@@ -11,22 +11,24 @@ public class MainMenuUI : MonoBehaviour
 
     [Header("New Game")]
     public TMP_InputField nameInput;
+    public TextMeshProUGUI txtError;
 
     [Header("Intro")]
-    public IntroController introController;   // ⭐ thêm dòng này
+    public IntroController introController;
 
     private void Start()
     {
         ShowMainPanel();
+        HideError();
     }
 
-    // ====== Chuyển panel ======
     public void ShowMainPanel()
     {
         panelMain.SetActive(true);
         panelNewGame.SetActive(false);
         panelLoad.SetActive(false);
         panelLeaderBoard.SetActive(false);
+        HideError();
     }
 
     public void ShowNewGamePanel()
@@ -35,6 +37,7 @@ public class MainMenuUI : MonoBehaviour
         panelNewGame.SetActive(true);
         panelLoad.SetActive(false);
         panelLeaderBoard.SetActive(false);
+        HideError();
     }
 
     public void ShowLoadPanel()
@@ -43,7 +46,7 @@ public class MainMenuUI : MonoBehaviour
         panelNewGame.SetActive(false);
         panelLoad.SetActive(true);
         panelLeaderBoard.SetActive(false);
-
+        HideError();
     }
 
     public void ShowLeatherBoardPanel()
@@ -52,32 +55,123 @@ public class MainMenuUI : MonoBehaviour
         panelNewGame.SetActive(false);
         panelLoad.SetActive(false);
         panelLeaderBoard.SetActive(true);
+        HideError();
 
         GameSaveManager.Instance.LoadLeaderboard();
     }
 
-
-
-    // ====== Nút trong Game mới ======
-    public void OnClickStartGame()
+    private void ShowError(string msg)
     {
-        string playerName = string.IsNullOrWhiteSpace(nameInput.text)
-            ? "Player"
-            : nameInput.text.Trim();
+        Debug.Log($"[DEBUG] Đang gọi ShowError với nội dung: '{msg}'"); // Dòng này quan trọng nhất
 
-        PlayerPrefs.SetString("PlayerName", playerName);
-        PlayerPrefs.Save();
+        if (txtError == null)
+        {
+            Debug.LogError("[DEBUG] LỖI: Biến txtError đang bị NULL! (Chưa kéo vào Inspector)");
+            return;
+        }
 
-        PlayerIdentity.SetPlayerName(playerName);
+        txtError.text = msg;
+        txtError.gameObject.SetActive(true);
 
-        introController.StartIntro();
+        // In ra vị trí của nó để xem có bị bay đi đâu không
+        Debug.Log($"[DEBUG] Đã bật txtError. Vị trí trên màn hình: {txtError.rectTransform.position}");
     }
 
+    private void HideError()
+    {
+        if (txtError == null) return;
+        txtError.gameObject.SetActive(false);
+    }
+
+    public void OnNameEndEdit(string value)
+    {
+        HideError();
+
+        string name = string.IsNullOrWhiteSpace(value) ? "" : value.Trim();
+        if (name.Length == 0) return;
+
+        StartCoroutine(AuthApi.CheckNameAvailable(name, (resp) =>
+        {
+            if (resp == null || !resp.ok) return;
+
+            if (!resp.available)
+                ShowError("Tên đã có người dùng. Hãy chọn tên khác.");
+        }));
+    }
+
+    public void OnClickStartGame()
+    {
+        HideError();
+
+        // 1. Kiểm tra đầu vào
+        string playerName = string.IsNullOrWhiteSpace(nameInput?.text) ? "" : nameInput.text.Trim();
+        if (playerName.Length == 0)
+        {
+            ShowError("Vui lòng nhập tên.");
+            return;
+        }
+
+        string playerId = PlayerIdentity.GetOrCreatePlayerId(); // ID định danh máy của bạn
+
+        // 2. Thử ĐĂNG KÝ tên này
+        StartCoroutine(AuthApi.Register(playerId, playerName, (resp) =>
+        {
+            // Lỗi mạng hoặc server chết
+            if (resp == null)
+            {
+                ShowError("Lỗi kết nối. Vui lòng thử lại.");
+                return;
+            }
+
+            // TRƯỜNG HỢP A: Tên chưa ai dùng -> Đăng ký thành công -> Vào game
+            if (resp.ok)
+            {
+                EnterGame(playerName);
+                return;
+            }
+
+            // TRƯỜNG HỢP B: Tên đã có người dùng -> Kiểm tra xem có phải mình không?
+            if (resp.error == "name_taken")
+            {
+                // Gọi API Login để kiểm tra chủ sở hữu
+                StartCoroutine(AuthApi.Login(playerId, playerName, (loginResp) =>
+                {
+                    if (loginResp != null && loginResp.ok)
+                    {
+                        // CHÍNH CHỦ! (PlayerId khớp với server) -> Cho vào game
+                        Debug.Log("Đăng nhập thành công lại vào nick cũ!");
+                        EnterGame(playerName);
+                    }
+                    else
+                    {
+                        // KHÔNG PHẢI CHÍNH CHỦ (PlayerId khác) -> Báo lỗi
+                        ShowError("Tên đã bị người khác lấy mất. Hãy chọn tên khác.");
+                    }
+                }));
+                return;
+            }
+
+            // Các lỗi lạ khác
+            ShowError("Lỗi không xác định: " + resp.error);
+        }));
+    }
+
+    // Hàm phụ để vào game (đỡ phải viết lặp lại 2 lần)
+    private void EnterGame(string validName)
+    {
+        PlayerIdentity.SetPlayerName(validName);
+        PlayerPrefs.SetString("PlayerName", validName);
+        PlayerPrefs.Save();
+
+        if (introController != null)
+            introController.StartIntro();
+        else
+            Debug.LogError("Chưa gắn IntroController!");
+    }
 
     public void OnClickQuit()
     {
         Application.Quit();
         Debug.Log("Quit game");
     }
-
 }
