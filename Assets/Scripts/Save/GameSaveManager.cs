@@ -18,7 +18,8 @@ public class GameSaveManager : MonoBehaviour
 
     private int currentSlot = -1;
 
-    private int currentSlot = -1;
+    // 🔥 DATA ĐANG LOAD
+    private SaveData loadedData;
 
     private void Awake()
     {
@@ -32,28 +33,20 @@ public class GameSaveManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    private void Start()
-    {
-        Debug.Log("Persistent Path = " + Application.persistentDataPath);
-        FindPlayerRefs();
-
-        if (enableAutoSave)
-            StartCoroutine(AutoSaveRoutine());
-    }
-
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    private void Start()
+    {
+        Debug.Log("Persistent Path = " + Application.persistentDataPath);
+        FindPlayerRefs();
+    }
+
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    private void Start()
-    {
-        FindPlayerRefs();
     }
 
     // =========================
@@ -101,23 +94,6 @@ public class GameSaveManager : MonoBehaviour
 
         if (gameTimer == null)
             gameTimer = FindObjectOfType<GameTimer>();
-    }
-
-    // AUTO SAVE ====================================
-    private IEnumerator AutoSaveRoutine()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(autoSaveInterval);
-
-            if (!enableAutoSave) continue;
-
-            if (currentSlot >= 0)
-            {
-                SaveToSlot(currentSlot);
-                Debug.Log("[AutoSave] Saved slot " + currentSlot);
-            }
-        }
     }
 
     // SAVE LOCAL ====================================
@@ -201,19 +177,20 @@ public class GameSaveManager : MonoBehaviour
 
         playerStatus.ForceRefreshUI();
 
-        foreach (var e in FindObjectsOfType<EnemySaveHandle>())
-        {
-            var match = data.enemies.FirstOrDefault(x => x.id == e.enemyId);
-            if (match != null)
-                e.ApplyState(match.posX, match.posY, match.currentHP, match.isDead);
-        }
+    foreach (var e in FindObjectsOfType<EnemySaveHandle>())
+    {
+        var match = data.enemies.FirstOrDefault(x => x.id == e.enemyId);
+        if (match != null)
+            e.ApplyState(match); // truyền cả object
+    }
 
-        foreach (var a in FindObjectsOfType<AnimalSaveHandle>())
-        {
-            var match = data.animals.FirstOrDefault(x => x.id == a.animalId);
-            if (match != null)
-                a.ApplyState(match.posX, match.posY, match.currentHP, match.isDead);
-        }
+    foreach (var a in FindObjectsOfType<AnimalSaveHandle>())
+    {
+        var match = data.animals.FirstOrDefault(x => x.id == a.animalId);
+        if (match != null)
+            a.ApplyState(match); // tương tự
+    }
+
 
         if (gameTimer != null)
         {
