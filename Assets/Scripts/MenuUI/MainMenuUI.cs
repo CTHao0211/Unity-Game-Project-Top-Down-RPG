@@ -60,12 +60,13 @@ public class MainMenuUI : MonoBehaviour
             ? "Player"
             : nameInput.text.Trim();
 
-        PlayerIdentity.SetPlayerName(playerName);
-        PlayerIdentity.GetOrCreatePlayerId(); // đảm bảo có ID
+        // Lưu tên người chơi
+        PlayerPrefs.SetString("PlayerName", playerName);
 
-        Debug.Log("Tên người chơi: " + playerName);
 
-        introController.StartIntro(); 
+        // Nếu bạn muốn, tạo Player mới hoặc reset GameManager prefab
+        // Giả sử introController sẽ load Scene game
+        introController.StartIntro();
     }
 
 
@@ -74,4 +75,5 @@ public class MainMenuUI : MonoBehaviour
         Application.Quit();
         Debug.Log("Quit game");
     }
+
 }

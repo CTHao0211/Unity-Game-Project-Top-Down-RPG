@@ -1,10 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class LoadSlotButton : MonoBehaviour
 {
-    public int slotIndex; // Slot này đại diện cho save slot nào
+    public int slotIndex;
 
     [Header("UI References")]
     public TextMeshProUGUI slotTitle;
@@ -17,7 +18,6 @@ public class LoadSlotButton : MonoBehaviour
         button.onClick.AddListener(OnClickLoadSlot);
     }
 
-    // Cập nhật thông tin slot
     public void Refresh()
     {
         var data = SaveSystem.LoadGame(slotIndex);
@@ -26,7 +26,7 @@ public class LoadSlotButton : MonoBehaviour
         {
             slotTitle.text = $"Load {slotIndex}";
             infoText.text = "Empty Slot";
-            button.interactable = false; // không thể load slot trống
+            button.interactable = false;
         }
         else
         {
@@ -39,18 +39,22 @@ public class LoadSlotButton : MonoBehaviour
         }
     }
 
-    // Khi nhấn nút load slot
     public void OnClickLoadSlot()
     {
         Debug.Log($"Load slot {slotIndex}");
+
+        // Load dữ liệu save slot
         GameSaveManager.Instance.LoadFromSlot(slotIndex);
+
+        // Load Scene game chính
+        SceneManager.LoadScene("Scene1");
     }
 
-    // Format thời gian MM:SS
     private string FormatTime(float time)
     {
         int m = Mathf.FloorToInt(time / 60);
         int s = Mathf.FloorToInt(time % 60);
         return $"{m:00}:{s:00}";
     }
+
 }

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -10,10 +11,11 @@ public class PauseManager : MonoBehaviour
     public CanvasGroup fadePanel;
 
     private bool isPaused = false;
+    private bool isTransitioning = false;
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && !isTransitioning)
         {
             if (isPaused)
                 ResumeGame();
@@ -26,7 +28,7 @@ public class PauseManager : MonoBehaviour
     {
         fadePanel.alpha = 0.5f;
         fadePanel.blocksRaycasts = true;
-        
+
         pauseMenuUI.SetActive(true);
         settingUI.SetActive(false);
         saveUI.SetActive(false);
@@ -60,7 +62,37 @@ public class PauseManager : MonoBehaviour
 
     public void QuitGame()
     {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("StartMenu");
+        if (isTransitioning) return;
+        StartCoroutine(QuitToMenuRoutine());
     }
-}
+
+    private IEnumerator QuitToMenuRoutine()
+    {
+        isTransitioning = true;
+
+        // Fade out UI
+        if (fadePanel != null)
+        {
+            float duration = 0.5f;
+            float elapsed = 0f;
+            float startAlpha = fadePanel.alpha;
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                fadePanel.alpha = Mathf.Lerp(startAlpha, 1f, elapsed / duration);
+                yield return null;
+            }
+            fadePanel.alpha = 1f;
+        }
+
+        // Hủy pause
+        Time.timeScale = 1f;
+        isPaused = false;
+
+        // Load menu chính
+        SceneManager.LoadScene("StartMenu");
+
+        isTransitioning = false;
+    }
+
+    }

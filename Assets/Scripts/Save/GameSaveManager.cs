@@ -15,10 +15,6 @@ public class GameSaveManager : MonoBehaviour
     [Header("Game Timer")]
     public GameTimer gameTimer;
 
-    [Header("Auto Save")]
-    public float autoSaveInterval = 600f;
-    public bool enableAutoSave = true;
-
     private int currentSlot = -1;
 
     // 🔥 DATA ĐANG LOAD
@@ -52,9 +48,6 @@ public class GameSaveManager : MonoBehaviour
     private void Start()
     {
         FindPlayerRefs();
-
-        if (enableAutoSave)
-            StartCoroutine(AutoSaveRoutine());
     }
 
     // =========================
@@ -105,23 +98,6 @@ public class GameSaveManager : MonoBehaviour
     }
 
     // =========================
-    // AUTO SAVE
-    // =========================
-    private IEnumerator AutoSaveRoutine()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(autoSaveInterval);
-
-            if (currentSlot >= 0)
-            {
-                SaveToSlot(currentSlot);
-                Debug.Log($"[AutoSave] Slot {currentSlot} saved");
-            }
-        }
-    }
-
-    // =========================
     // SAVE
     // =========================
     public void SaveToSlot(int slot)
@@ -138,6 +114,10 @@ public class GameSaveManager : MonoBehaviour
         SaveData data = new SaveData();
 
         data.sceneName = SceneManager.GetActiveScene().name;
+        data.sceneTransitionName = SceneManagement.Instance != null
+        ? SceneManagement.Instance.SceneTransitionName
+        : string.Empty;
+
 
         // Player
         data.player = new PlayerSaveData
@@ -191,15 +171,24 @@ public class GameSaveManager : MonoBehaviour
         AsyncOperation op = SceneManager.LoadSceneAsync(data.sceneName);
         while (!op.isDone) yield return null;
 
+        // 🔥 RESTORE TRANSITION
+        if (SceneManagement.Instance != null)
+        {
+            SceneManagement.Instance.SetTransitionName(data.sceneTransitionName);
+        }
+
         // Chờ player spawn
         while (FindObjectOfType<PlayerControllerCombined>() == null)
             yield return null;
 
         FindPlayerRefs();
 
-        // Player position
-        playerController.transform.position =
-            new Vector2(data.player.posX, data.player.posY);
+        // 🔥 KHÔNG GHI ĐÈ VỊ TRÍ NẾU CÓ TRANSITION
+        if (string.IsNullOrEmpty(data.sceneTransitionName))
+        {
+            playerController.transform.position =
+                new Vector2(data.player.posX, data.player.posY);
+        }
 
         // Player stats
         playerStatus.level = data.player.level;
@@ -207,13 +196,11 @@ public class GameSaveManager : MonoBehaviour
         playerStatus.expToNextLevel = data.player.expToNextLevel;
         playerStatus.damage = data.player.damage;
 
-        // Player HP (thứ tự quan trọng)
         playerHealth.maxHealth = data.player.maxHP;
         playerHealth.ApplyLoadedHP(data.player.currentHP);
 
         playerStatus.ForceRefreshUI();
 
-        // Game time
         if (gameTimer != null)
         {
             gameTimer.ResetTimer();
@@ -221,4 +208,5 @@ public class GameSaveManager : MonoBehaviour
             gameTimer.ResumeTimer();
         }
     }
+
 }
