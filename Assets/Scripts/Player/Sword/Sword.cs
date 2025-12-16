@@ -148,6 +148,22 @@ public class Sword : MonoBehaviour
                 attackButtonCanvasGroup.interactable = true;
             }
         }
+        if (isAttacking)
+        {
+            foreach (var h in swingHitboxes) h.SetActive(false);
+
+            isAttacking = false;
+
+            if (playerController != null)
+            {
+                playerController.LockMovement(false);
+                playerController.RB.constraints = RigidbodyConstraints2D.FreezeRotation;
+            }
+
+            if (playerAnimator != null)
+                playerAnimator.SetBool("UsingSword", false);
+        }
+
     }
 
     public void DoneAttackingAnimEvent()
