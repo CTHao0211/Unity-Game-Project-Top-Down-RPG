@@ -59,8 +59,8 @@ public class Sword : MonoBehaviour
     }
 
 
-    private void PerformAttack()
-    {
+private void PerformAttack()
+{
     if (!canAttack) return;
 
     // Lock movement
@@ -83,8 +83,12 @@ public class Sword : MonoBehaviour
     hasDealtDamage = false;   
     isAttacking = true;
 
-    StartCoroutine(AttackCooldownRoutine()); // <-- chỉ 1 lần
+    // Swap combo ngay khi đánh
+    currentSwing = (currentSwing == SwingDirection.Down) ? SwingDirection.Up : SwingDirection.Down;
+
+    StartCoroutine(AttackCooldownRoutine());
 }
+
 
 
     private void OnEnable()
