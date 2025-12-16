@@ -62,7 +62,7 @@ public class MainMenuUI : MonoBehaviour
 
     private void ShowError(string msg)
     {
-        Debug.Log($"[DEBUG] Đang gọi ShowError với nội dung: '{msg}'"); // Dòng này quan trọng nhất
+        Debug.Log($"[DEBUG] Đang gọi ShowError với nội dung: '{msg}'"); 
 
         if (txtError == null)
         {
@@ -73,7 +73,6 @@ public class MainMenuUI : MonoBehaviour
         txtError.text = msg;
         txtError.gameObject.SetActive(true);
 
-        // In ra vị trí của nó để xem có bị bay đi đâu không
         Debug.Log($"[DEBUG] Đã bật txtError. Vị trí trên màn hình: {txtError.rectTransform.position}");
     }
 
@@ -92,10 +91,28 @@ public class MainMenuUI : MonoBehaviour
 
         StartCoroutine(AuthApi.CheckNameAvailable(name, (resp) =>
         {
-            if (resp == null || !resp.ok) return;
+            if (resp == null || !resp.ok) return; 
 
-            if (!resp.available)
-                ShowError("Tên đã có người dùng. Hãy chọn tên khác.");
+            if (resp.available)
+            {
+                HideError();
+            }
+            else
+            {
+                string playerId = PlayerIdentity.GetOrCreatePlayerId();
+
+                StartCoroutine(AuthApi.Login(playerId, name, (loginResp) =>
+                {
+                    if (loginResp != null && loginResp.ok)
+                    {
+                        HideError();
+                    }
+                    else
+                    {
+                        ShowError("Tên đã tồn tại.");
+                    }
+                }));
+            }
         }));
     }
 
@@ -103,7 +120,6 @@ public class MainMenuUI : MonoBehaviour
     {
         HideError();
 
-        // 1. Kiểm tra đầu vào
         string playerName = string.IsNullOrWhiteSpace(nameInput?.text) ? "" : nameInput.text.Trim();
         if (playerName.Length == 0)
         {
@@ -111,62 +127,54 @@ public class MainMenuUI : MonoBehaviour
             return;
         }
 
-        string playerId = PlayerIdentity.GetOrCreatePlayerId(); // ID định danh máy của bạn
+        string playerId = PlayerIdentity.GetOrCreatePlayerId(); 
 
-        // 2. Thử ĐĂNG KÝ tên này
         StartCoroutine(AuthApi.Register(playerId, playerName, (resp) =>
         {
-            // Lỗi mạng hoặc server chết
             if (resp == null)
             {
                 ShowError("Lỗi kết nối. Vui lòng thử lại.");
                 return;
             }
 
-            // TRƯỜNG HỢP A: Tên chưa ai dùng -> Đăng ký thành công -> Vào game
             if (resp.ok)
             {
                 EnterGame(playerName);
                 return;
             }
 
-            // TRƯỜNG HỢP B: Tên đã có người dùng -> Kiểm tra xem có phải mình không?
             if (resp.error == "name_taken")
             {
-                // Gọi API Login để kiểm tra chủ sở hữu
                 StartCoroutine(AuthApi.Login(playerId, playerName, (loginResp) =>
                 {
                     if (loginResp != null && loginResp.ok)
                     {
-                        // CHÍNH CHỦ! (PlayerId khớp với server) -> Cho vào game
                         Debug.Log("Đăng nhập thành công lại vào nick cũ!");
                         EnterGame(playerName);
                     }
                     else
                     {
-                        // KHÔNG PHẢI CHÍNH CHỦ (PlayerId khác) -> Báo lỗi
-                        ShowError("Tên đã bị người khác lấy mất. Hãy chọn tên khác.");
+                        ShowError("Tên đã tồn tại.");
                     }
                 }));
                 return;
             }
 
-            // Các lỗi lạ khác
             ShowError("Lỗi không xác định: " + resp.error);
         }));
     }
 
-    // Hàm phụ để vào game (đỡ phải viết lặp lại 2 lần)
     private void EnterGame(string validName)
     {
+        HideError();
+
         PlayerIdentity.SetPlayerName(validName);
         PlayerPrefs.SetString("PlayerName", validName);
         PlayerPrefs.Save();
 
+
         if (introController != null)
             introController.StartIntro();
-        else
-            Debug.LogError("Chưa gắn IntroController!");
     }
 
     public void OnClickQuit()
