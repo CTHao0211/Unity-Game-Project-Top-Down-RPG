@@ -50,11 +50,12 @@ public class SkeletonChase : MonoBehaviour
         if (target == null || rb == null) return;
 
         // 🔴 Nếu player đã chết → ngừng chase, quay về spawn
-        if (!playerDead && PlayerControllerCombined.instance != null && PlayerControllerCombined.instance.IsDead)
-        {
-            playerDead = true;
-            isChasing = false;
-        }
+    if (!playerDead && PlayerControllerCombined.Instance != null && PlayerControllerCombined.Instance.IsDead)
+    {
+        playerDead = true;
+        isChasing = false;
+    }
+
 
         if (playerDead)
         {

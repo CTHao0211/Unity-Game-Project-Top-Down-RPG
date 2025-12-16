@@ -11,11 +11,10 @@ public class GameTimerUI : MonoBehaviour
             return;
 
         float t = GameTimer.Instance.GetTime();
-
         int totalSeconds = Mathf.FloorToInt(t);
         int minutes = totalSeconds / 60;
         int seconds = totalSeconds % 60;
-
         timerText.text = $"Time: {minutes:00}:{seconds:00}";
+
     }
 }

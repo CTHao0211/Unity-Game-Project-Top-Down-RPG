@@ -1,3 +1,4 @@
+// PlayerHealth.cs
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,20 +10,20 @@ public class PlayerHealth : MonoBehaviour
     public int maxHealth = 100;
     public int currentHealth;
 
-    [Header("UI (Canvas Scene)")]
-    public Image fillBar;       // Gán FillBar Image từ Canvas
-    public TMP_Text healthText; // Gán TMP_Text từ Canvas
+    [Header("UI")]
+    public Image fillBar;
+    public TMP_Text healthText;
 
     [Header("Effects")]
-    public Flash flash;         // Flash component (đổi màu)
-    public Knockback knockback; // Knockback component
+    public Flash flash;
+    public Knockback knockback;
 
     [Header("Animation")]
-    public Animator animator;   // Animator nếu muốn trigger "Hit"
+    public Animator animator;
 
     [Header("Damage Popup")]
-    public DamageText damagePopupPrefab; // Gán prefab DamageText
-    public Transform popupCanvas;        // Canvas dùng hiển thị popup
+    public DamageText damagePopupPrefab;
+    public Transform popupCanvas;
 
     [Header("Knockback Settings")]
     public float knockbackForce = 10f;
@@ -32,53 +33,32 @@ public class PlayerHealth : MonoBehaviour
     public float invulnTime = 0.3f;
     private bool isInvulnerable = false;
     private bool loadedFromSave = false;
-
     private bool isDead = false;
+
     private void Awake()
     {
         flash = flash ?? GetComponent<Flash>();
         knockback = knockback ?? GetComponent<Knockback>();
+        if (animator == null) animator = GetComponentInParent<Animator>();
 
-        // TÌM Animator Ở TRÊN CHA (PlayerControllerCombined hoặc Player)
-        if (animator == null)
-            animator = GetComponentInParent<Animator>();
-
-        // Nếu chưa gán popupCanvas, tìm Canvas trong scene
         if (popupCanvas == null)
         {
             Canvas c = FindObjectOfType<Canvas>();
-            if (c != null)
-                popupCanvas = c.transform;
+            if (c != null) popupCanvas = c.transform;
         }
     }
 
-
     private void Start()
     {
-        if (!loadedFromSave)
-            currentHealth = maxHealth;
-
+        if (!loadedFromSave) currentHealth = maxHealth;
         UpdateHealthUI();
     }
 
-
-    /// <summary>
-    /// Nhận damage
-    /// </summary>
-    public void TakeDamage(
-    int dmg,
-    Transform source = null,
-    Color? popupColor = null,
-    bool canKnockback = true,
-    bool ignoreInvuln = false
-)
-
+    public void TakeDamage(int dmg, Transform source = null, Color? popupColor = null, bool canKnockback = true, bool ignoreInvuln = false)
     {
         if (isDead) return;
         if (isInvulnerable && !ignoreInvuln) return;
 
-
-        // set invulnerable window nếu cần
         if (useInvulnerability)
         {
             isInvulnerable = true;
@@ -86,24 +66,11 @@ public class PlayerHealth : MonoBehaviour
         }
 
         currentHealth -= dmg;
-        if (currentHealth < 0)
-            currentHealth = 0;
+        if (currentHealth < 0) currentHealth = 0;
 
-        // Flash khi bị damage
         flash?.FlashWhite();
+        if (canKnockback && source != null) knockback?.GetKnockedBack(source, knockbackForce);
 
-
-
-        //// Animator trigger (nếu muốn)
-        //animator.SetTrigger("Hit");
-
-
-        // Knockback nếu có nguồn damage
-        if (canKnockback && source != null)
-            knockback?.GetKnockedBack(source, knockbackForce);
-
-
-        // Damage Popup
         if (damagePopupPrefab != null && popupCanvas != null)
         {
             DamageText dt = Instantiate(damagePopupPrefab, popupCanvas);
@@ -127,47 +94,31 @@ public class PlayerHealth : MonoBehaviour
         isInvulnerable = false;
     }
 
-    /// <summary>
-    /// Hồi máu
-    /// </summary>
     public void Heal(int amount)
     {
         currentHealth += amount;
-        if (currentHealth > maxHealth)
-            currentHealth = maxHealth;
-
+        if (currentHealth > maxHealth) currentHealth = maxHealth;
         UpdateHealthUI();
     }
 
-    /// <summary>
-    /// Cập nhật thanh máu
-    /// </summary>
     public void UpdateHealthUI()
     {
         if (fillBar != null)
             fillBar.fillAmount = (float)currentHealth / maxHealth;
-
         if (healthText != null)
             healthText.text = $"{currentHealth}/{maxHealth}";
     }
 
-    /// <summary>
-    /// Khi Player chết
-    /// </summary>
     private void Die()
     {
         Debug.Log("Player died!");
 
-        // chạy animation chết nếu có
-        if (PlayerControllerCombined.instance != null)
-            PlayerControllerCombined.instance.PlayDeath();
+        if (PlayerControllerCombined.Instance != null)
+            PlayerControllerCombined.Instance.PlayDeath();
 
-        // ✅ luôn gọi GameOver (không phụ thuộc animation event)
         var gm = GameManager.instance ?? FindObjectOfType<GameManager>();
-        if (gm != null)
-            gm.GameOver();
+        gm?.GameOver();
     }
-
 
     public void ApplyLoadedHP(int hp)
     {
@@ -176,26 +127,20 @@ public class PlayerHealth : MonoBehaviour
         UpdateHealthUI();
     }
 
-
-
     public void OnDeathAnimationEnd()
     {
-        // không cần nữa, hoặc giữ cũng được vì GameOver có chặn IsGameOver
         var gm = GameManager.instance ?? FindObjectOfType<GameManager>();
         gm?.GameOver();
     }
-
 
     public void ApplyLoadedHPDelayed(int hp)
     {
         StartCoroutine(ApplyNextFrame(hp));
     }
 
-
     private IEnumerator ApplyNextFrame(int hp)
     {
         yield return null;
         ApplyLoadedHP(hp);
     }
-
 }

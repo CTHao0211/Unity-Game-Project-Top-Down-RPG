@@ -37,19 +37,14 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        // ✅ an toàn: nếu có nhiều GameManager thì giữ cái đầu tiên
         if (instance != null && instance != this)
         {
             Destroy(gameObject);
             return;
         }
-        instance = this;
-    }
 
-    private void OnEnable()
-    {
-        // ✅ nếu vì lý do nào đó instance bị mất, tự set lại
-        if (instance == null) instance = this;
+        instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
@@ -57,22 +52,14 @@ public class GameManager : MonoBehaviour
         if (PlayerPrefs.HasKey("PlayerName"))
             playerName = PlayerPrefs.GetString("PlayerName", "Player");
 
-        // Fade in khi vào scene
         if (fadeCanvasGroup != null)
         {
             fadeCanvasGroup.alpha = 1f;
             StartCoroutine(FadeRoutine(0f));
         }
 
-        // Ẩn panel lúc đầu
-        if (gameOverPanel != null) gameOverPanel.SetActive(false);
-        if (gameWinPanel != null) gameWinPanel.SetActive(false);
-
+        ResetGameState();
         Time.timeScale = 1f;
-
-        // reset state mỗi scene
-        IsGameOver = false;
-        IsGameWin = false;
     }
 
     private void Update()
@@ -87,56 +74,30 @@ public class GameManager : MonoBehaviour
         killCount++;
     }
 
-    // ✅ GameOver luôn ưu tiên chạy khi player chết
     public void GameOver()
     {
-        if (IsGameOver) return;   // ❗ không chặn bởi IsGameWin nữa
+        if (IsGameOver) return;
         IsGameOver = true;
 
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(true);
-        else
-            Debug.LogWarning("[GameManager] gameOverPanel is NULL");
-
-        if (playerNameText != null)
-            playerNameText.text = "Player: " + playerName;
-
-        if (survivalTimeText != null)
-            survivalTimeText.text = "Time: " + FormatTime(survivalTime);
-
-        if (killCountText != null)
-            killCountText.text = "Kills: " + killCount;
+        if (gameOverPanel != null) gameOverPanel.SetActive(true);
+        if (playerNameText != null) playerNameText.text = "Player: " + playerName;
+        if (survivalTimeText != null) survivalTimeText.text = "Time: " + FormatTime(survivalTime);
+        if (killCountText != null) killCountText.text = "Kills: " + killCount;
 
         Time.timeScale = 0f;
     }
 
-    // ✅ Win chỉ xảy ra ở Scene2 (đúng yêu cầu)
     public void GameWin()
     {
         if (IsGameWin || IsGameOver) return;
-
-        // ❗ Chỉ win ở Scene2
-        if (SceneManager.GetActiveScene().name != "Scene2")
-        {
-            Debug.Log("[GameManager] GameWin ignored because not in Scene2");
-            return;
-        }
+        if (SceneManager.GetActiveScene().name != "Scene2") return;
 
         IsGameWin = true;
 
-        if (gameWinPanel != null)
-            gameWinPanel.SetActive(true);
-        else
-            Debug.LogWarning("[GameManager] gameWinPanel is NULL");
-
-        if (winPlayerNameText != null)
-            winPlayerNameText.text = "Player: " + playerName;
-
-        if (winTimeText != null)
-            winTimeText.text = "Time: " + FormatTime(survivalTime);
-
-        if (winKillText != null)
-            winKillText.text = "Kills: " + killCount;
+        if (gameWinPanel != null) gameWinPanel.SetActive(true);
+        if (winPlayerNameText != null) winPlayerNameText.text = "Player: " + playerName;
+        if (winTimeText != null) winTimeText.text = "Time: " + FormatTime(survivalTime);
+        if (winKillText != null) winKillText.text = "Kills: " + killCount;
 
         Time.timeScale = 0f;
     }
@@ -147,6 +108,26 @@ public class GameManager : MonoBehaviour
         int minutes = total / 60;
         int seconds = total % 60;
         return $"{minutes:00}:{seconds:00}";
+    }
+
+    public void ResetGameState()
+    {
+        IsGameOver = false;
+        IsGameWin = false;
+
+        survivalTime = 0f;
+        killCount = 0;
+
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (gameWinPanel != null) gameWinPanel.SetActive(false);
+
+        if (playerNameText != null) playerNameText.text = "";
+        if (survivalTimeText != null) survivalTimeText.text = "";
+        if (killCountText != null) killCountText.text = "";
+
+        if (winPlayerNameText != null) winPlayerNameText.text = "";
+        if (winTimeText != null) winTimeText.text = "";
+        if (winKillText != null) winKillText.text = "";
     }
 
     public void OnClickRestart()
@@ -166,9 +147,15 @@ public class GameManager : MonoBehaviour
         isTransitioning = true;
         Time.timeScale = 1f;
 
+        // Fade out
         yield return StartCoroutine(FadeRoutine(1f));
 
+        // Load lại Scene game
         SceneManager.LoadScene("Scene1");
+
+        yield return null;
+
+        isTransitioning = false;
     }
 
     private IEnumerator ReturnToMenuRoutine()
@@ -176,15 +163,20 @@ public class GameManager : MonoBehaviour
         isTransitioning = true;
         Time.timeScale = 1f;
 
+        // Fade out
         yield return StartCoroutine(FadeRoutine(1f));
 
+        // Load Menu
         SceneManager.LoadScene("StartMenu");
+
+        yield return null;
+
+        isTransitioning = false;
     }
 
     private IEnumerator FadeRoutine(float targetAlpha)
     {
-        if (fadeCanvasGroup == null)
-            yield break;
+        if (fadeCanvasGroup == null) yield break;
 
         float startAlpha = fadeCanvasGroup.alpha;
         float elapsed = 0f;
