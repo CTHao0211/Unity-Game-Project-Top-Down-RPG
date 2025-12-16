@@ -58,22 +58,21 @@ public class GameSaveManager : MonoBehaviour
 
         if (loadedData == null) return;
 
-        // Apply enemy state
-        foreach (var e in FindObjectsOfType<EnemySaveHandle>())
+        foreach (var e in FindObjectsOfType<EnemySaveHandle>(true))
         {
             var match = loadedData.enemies.FirstOrDefault(x => x.id == e.enemyId);
             if (match != null)
                 e.ApplyState(match);
         }
 
-        // Apply animal state
-        foreach (var a in FindObjectsOfType<AnimalSaveHandle>())
+        foreach (var a in FindObjectsOfType<AnimalSaveHandle>(true))
         {
             var match = loadedData.animals.FirstOrDefault(x => x.id == a.animalId);
             if (match != null)
                 a.ApplyState(match);
         }
     }
+
 
     // =========================
     // FIND REFERENCES

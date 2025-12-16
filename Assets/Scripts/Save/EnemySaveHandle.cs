@@ -9,29 +9,28 @@ public class EnemySaveHandle : MonoBehaviour
     [Header("Health")]
     public HealthBase health;
 
-    [Header("Respawn Settings")]
-    public float respawnDelay = 300f; // giây
-
-    private float deathTime = -1f;
-    private Vector3 spawnPosition;
-
-    // =========================
-    // LIFECYCLE
-    // =========================
     private void Awake()
     {
+        if (string.IsNullOrEmpty(enemyId) || EnemyIdExistsInScene(enemyId))
+        {
+            enemyId = Guid.NewGuid().ToString();
+            Debug.Log($"[EnemySaveHandle] Generated new enemyId: {enemyId}");
+        }
         if (health == null)
             health = GetComponent<HealthBase>();
 
         if (health != null)
             health.OnDeath += HandleDeath;
     }
-
-    private void Start()
+    private bool EnemyIdExistsInScene(string id)
     {
-        spawnPosition = transform.position;
+        foreach (var e in FindObjectsOfType<EnemySaveHandle>())
+        {
+            if (e != this && e.enemyId == id)
+                return true;
+        }
+        return false;
     }
-
     private void OnDestroy()
     {
         if (health != null)
@@ -55,23 +54,13 @@ public class EnemySaveHandle : MonoBehaviour
     // =========================
     // STATE
     // =========================
-    public bool IsDead =>
-        !gameObject.activeSelf ||
-        (health != null && health.currentHealth <= 0);
-
-    public int CurrentHP =>
-        health != null ? health.currentHealth : 0;
+    public bool IsDead => !gameObject.activeSelf || (health != null && health.currentHealth <= 0);
+    public int CurrentHP => health != null ? health.currentHealth : 0;
 
     // =========================
     // EVENTS
     // =========================
-    private void HandleDeath()
-    {
-        // Ghi lại thời điểm chết (dùng GameTimer toàn cục)
-        deathTime = GameTimer.Instance != null
-            ? GameTimer.Instance.GetTime()
-            : Time.time;
-    }
+    private void HandleDeath() { }
 
     // =========================
     // SAVE
@@ -84,9 +73,7 @@ public class EnemySaveHandle : MonoBehaviour
             posX = transform.position.x,
             posY = transform.position.y,
             currentHP = CurrentHP,
-            isDead = IsDead,
-            deathTime = deathTime,
-            respawnDelay = respawnDelay
+            isDead = IsDead
         };
     }
 
@@ -95,50 +82,16 @@ public class EnemySaveHandle : MonoBehaviour
     // =========================
     public void ApplyState(EnemySaveData data)
     {
-        float now = GameTimer.Instance != null
-            ? GameTimer.Instance.GetTime()
-            : Time.time;
-
-        // Enemy đã chết
         if (data.isDead)
         {
-            // ⏱ Đủ thời gian → respawn
-            if (data.deathTime > 0 &&
-                now - data.deathTime >= data.respawnDelay)
-            {
-                Respawn();
-                return;
-            }
-
-            // ❌ Chưa đủ → giữ chết
-            deathTime = data.deathTime;
             gameObject.SetActive(false);
             return;
         }
 
-        // Enemy còn sống
-        transform.position = new Vector3(
-            data.posX,
-            data.posY,
-            transform.position.z
-        );
+        transform.position = new Vector3(data.posX, data.posY, transform.position.z);
 
         if (health != null)
             health.ApplyLoadedHP(data.currentHP);
-
-        gameObject.SetActive(true);
-    }
-
-    // =========================
-    // RESPAWN
-    // =========================
-    private void Respawn()
-    {
-        deathTime = -1f;
-        transform.position = spawnPosition;
-
-        if (health != null)
-            health.ApplyLoadedHP(health.maxHealth);
 
         gameObject.SetActive(true);
     }
