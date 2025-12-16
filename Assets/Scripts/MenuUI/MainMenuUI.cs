@@ -43,6 +43,7 @@ public class MainMenuUI : MonoBehaviour
         panelNewGame.SetActive(false);
         panelLoad.SetActive(true);
         panelLeaderBoard.SetActive(false);
+
     }
 
     public void ShowLeatherBoardPanel()
@@ -51,7 +52,11 @@ public class MainMenuUI : MonoBehaviour
         panelNewGame.SetActive(false);
         panelLoad.SetActive(false);
         panelLeaderBoard.SetActive(true);
+
+        GameSaveManager.Instance.LoadLeaderboard();
     }
+
+
 
     // ====== Nút trong Game mới ======
     public void OnClickStartGame()
