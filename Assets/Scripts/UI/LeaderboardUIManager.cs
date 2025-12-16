@@ -35,12 +35,9 @@ public class LeaderboardUIManager : MonoBehaviour
 
         var top = data
             .Where(d => d != null && d.completionTime > 0)
-            .GroupBy(d => d.playerName)                     // gom theo tên
-            .Select(g => g.OrderBy(d => d.completionTime).First()) // chọn bản tốt nhất
-            .OrderBy(d => d.completionTime)                // sắp xếp theo thời gian tốt nhất
+            .OrderBy(d => d.completionTime)
             .Take(entries.Length)
             .ToList();
-
 
         for (int i = 0; i < entries.Length; i++)
         {
