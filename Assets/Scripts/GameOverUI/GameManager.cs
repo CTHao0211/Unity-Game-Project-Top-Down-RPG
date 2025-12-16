@@ -98,10 +98,22 @@ public class GameManager : MonoBehaviour
         if (winPlayerNameText != null) winPlayerNameText.text = "Player: " + playerName;
         if (winTimeText != null) winTimeText.text = "Time: " + FormatTime(survivalTime);
         if (winKillText != null) winKillText.text = "Kills: " + killCount;
-
+        TriggerWin();
         Time.timeScale = 0f;
     }
+    public void TriggerWin()
+    {
+        var gsm = GameSaveManager.Instance;
+        if (gsm == null) return;
 
+        float timeSec = (gsm.gameTimer != null) ? gsm.gameTimer.GetTime() : 0f;
+        int timeMs = Mathf.FloorToInt(timeSec * 1000f);
+
+        string playerId = PlayerIdentity.GetOrCreatePlayerId();
+        string playerName = PlayerIdentity.GetPlayerName();
+
+        gsm.StartCoroutine(LeaderboardApi.SubmitRun(playerId, playerName, timeMs));
+    }
     private string FormatTime(float time)
     {
         int total = Mathf.FloorToInt(time);
