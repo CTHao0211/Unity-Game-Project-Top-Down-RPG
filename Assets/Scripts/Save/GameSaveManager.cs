@@ -18,7 +18,6 @@ public class GameSaveManager : MonoBehaviour
 
     private int currentSlot = -1;
 
-    // 🔥 DATA ĐANG LOAD
     private SaveData loadedData;
 
     private void Awake()
@@ -49,9 +48,7 @@ public class GameSaveManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    // =========================
     // SCENE
-    // =========================
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         FindPlayerRefs();
@@ -74,9 +71,7 @@ public class GameSaveManager : MonoBehaviour
     }
 
 
-    // =========================
     // FIND REFERENCES
-    // =========================
     private void FindPlayerRefs()
     {
         if (playerController == null)
@@ -95,7 +90,7 @@ public class GameSaveManager : MonoBehaviour
             gameTimer = FindObjectOfType<GameTimer>();
     }
 
-    // SAVE LOCAL ====================================
+    // SAVE LOCAL 
     public void SaveToSlot(int slot)
     {
         currentSlot = slot;
@@ -143,7 +138,7 @@ public class GameSaveManager : MonoBehaviour
         Debug.Log($"[GameSaveManager] Save slot {slot} complete");
     }
 
-    // LOAD LOCAL ====================================
+    // LOAD LOCAL 
     public void LoadFromSlot(int slot)
     {
         currentSlot = slot;
@@ -156,7 +151,6 @@ public class GameSaveManager : MonoBehaviour
 
     private IEnumerator LoadSceneAndApply(SaveData data)
     {
-        // ✅ FIX: đồng bộ lại PlayerPrefs theo dữ liệu slot (để save/leaderboard không bị tên cũ)
         if (!string.IsNullOrWhiteSpace(data.playerName))
             PlayerPrefs.SetString("PlayerName", data.playerName);
 
@@ -205,9 +199,8 @@ public class GameSaveManager : MonoBehaviour
     }
 
 
-    // ============================
+ 
     // SUBMIT RUN -> LEADERBOARD
-    // ============================
     public void SaveCompletionTime(float completionTimeSeconds)
     {
         int timeMs = Mathf.FloorToInt(Mathf.Max(0f, completionTimeSeconds) * 1000f);
@@ -219,15 +212,13 @@ public class GameSaveManager : MonoBehaviour
         StartCoroutine(LeaderboardApi.SubmitRun(playerId, playerName, timeMs));
     }
 
-    // ============================
     // LOAD LEADERBOARD
-    // ============================
     private SaveData[] leaderboard = new SaveData[0];
     public SaveData[] GetLeaderboardData() => leaderboard;
 
     public void LoadLeaderboard()
     {
-        StartCoroutine(LeaderboardApi.LoadLeaderboard(50, OnLeaderboardLoaded));
+        StartCoroutine(LeaderboardApi.LoadLeaderboard(10, OnLeaderboardLoaded));
     }
 
     private void OnLeaderboardLoaded(SaveData[] dataArray)

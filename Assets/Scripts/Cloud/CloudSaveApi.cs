@@ -6,8 +6,7 @@ using UnityEngine.Networking;
 
 public static class CloudSaveApi
 {
-    // Ví dụ: https://your-service.onrender.com/api
-    public static string BASE_URL = "https://YOUR-API.onrender.com/api";
+    public static string BASE_URL = "https://cloud-save-server.onrender.com";
 
     [Serializable]
     private class SaveWrapper
@@ -20,7 +19,7 @@ public static class CloudSaveApi
     [Serializable]
     private class LoadResponseWrapper
     {
-        public string status;   // "success" | "no_save" | "error"
+        public string status;   
         public SaveData saveData;
     }
 
