@@ -7,7 +7,6 @@ using UnityEngine.Networking;
 
 public static class LeaderboardApi
 {
-    // Server bạn đang dùng (index.js)
     public static string BASE_URL = "https://cloud-save-server.onrender.com";
 
     [Serializable]
@@ -18,7 +17,6 @@ public static class LeaderboardApi
         public int completionTimeMs;
     }
 
-    // Server trả: { status: "success", data: [...] }
     [Serializable]
     private class LeaderboardResponse
     {
@@ -27,7 +25,6 @@ public static class LeaderboardApi
         public string error;
     }
 
-    // Lưu ý: phải đúng snake_case y như server/supabase trả về
     [Serializable]
     private class LeaderboardRow
     {
@@ -66,7 +63,6 @@ public static class LeaderboardApi
         }
     }
 
-    // Trả về SaveData[] để LeaderboardUIManager dùng lại (playerName + completionTime)
     public static IEnumerator LoadLeaderboard(int limit, Action<SaveData[]> onLoaded)
     {
         limit = Mathf.Clamp(limit, 1, 200);
